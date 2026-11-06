@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2563eb">
-<title>مترجم تخصصی سریع</title>
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
+<title>مترجم تخصصی — PDF و Word</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -13,8 +13,8 @@
 <div id="loginScreen" class="login-screen">
   <div class="login-card">
     <div class="logo">📚</div>
-    <h1>مترجم تخصصی سریع</h1>
-    <p class="muted">ترجمهٔ دوزبانه با حفظ ظاهر اصلی</p>
+    <h1>مترجم تخصصی</h1>
+    <p class="muted">PDF و Word — دوزبانه، صفحه‌ای یا متن تمیز</p>
     <form id="loginForm">
       <label>نام کاربری</label><input id="username" type="text" required autocomplete="username">
       <label>رمز عبور</label><input id="password" type="password" required autocomplete="current-password">
@@ -26,7 +26,7 @@
 
 <div id="app" class="app hidden">
   <header class="appbar">
-    <strong>📚 مترجم سریع</strong>
+    <strong>📚 مترجم تخصصی</strong>
     <div>
       <button id="wakeLockBtn" class="icon-btn" title="روشن ماندن صفحه">💤</button>
       <button id="settingsBtn" class="icon-btn" title="تنظیمات">⚙️</button>
@@ -42,8 +42,9 @@
 
   <main class="container">
     <section class="card">
-      <h2>۱. فایل PDF</h2>
-      <input type="file" id="pdfInput" accept="application/pdf">
+      <h2>۱. فایل ورودی</h2>
+      <input type="file" id="fileInput"
+        accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
       <div id="fileInfo" class="file-info hidden"></div>
     </section>
 
@@ -54,36 +55,46 @@
     </section>
 
     <section class="card hidden" id="runCard">
-      <h2>۳. محدوده و حالت نمایش</h2>
-      <div class="grid-2">
+      <h2>۳. حالت، محدوده و شروع</h2>
+
+      <div class="grid-2" id="pageRangeRow">
         <div><label>از صفحه</label><input id="fromPage" type="number" value="1" min="1"></div>
         <div><label>تا صفحه</label><input id="toPage" type="number" value="10" min="1"></div>
       </div>
 
-      <label>حالت نمایش خروجی</label>
-      <select id="modeSelect">
-        <option value="bilingual">📝 دو زبانه — متن اصلی + ترجمه زیر آن</option>
-        <option value="original">🖼 صفحهٔ اصلی (با عکس/جدول) + ترجمه در زیر</option>
-      </select>
+      <label>حالت ترجمه</label>
+      <select id="modeSelect"></select>
       <p id="modeHint" class="muted small"></p>
+
+      <div id="displayStyleRow">
+        <label>چیدمان نمایش دوزبانه</label>
+        <div class="style-toggle">
+          <button type="button" class="style-btn" data-style="columns">📰 دو ستونی (کنار هم)</button>
+          <button type="button" class="style-btn" data-style="interlinear">📝 روی هم (خط به خط)</button>
+        </div>
+      </div>
 
       <button id="startBtn" class="btn btn-primary btn-block">شروع / ادامهٔ ترجمه</button>
       <button id="cancelBtn" class="btn btn-danger btn-block hidden">لغو</button>
+
       <div id="progressWrap" class="progress-wrap hidden">
         <div class="progress"><div id="progressBar" class="progress-bar"></div></div>
         <p id="progressText" class="muted small"></p>
         <p id="chunkStats" class="muted small"></p>
       </div>
-      <button id="clearJobBtn" class="btn btn-ghost btn-block hidden">🗑 حذف ذخیرهٔ این فایل و شروع از نو</button>
+
+      <button id="clearJobBtn" class="btn btn-ghost btn-block hidden">🗑 حذف ذخیرهٔ این فایل</button>
     </section>
 
     <section class="card hidden" id="outputCard">
       <div class="card-head">
         <h2>۴. خروجی</h2>
         <div class="btn-row">
+          <button id="toggleOriginalBtn" class="btn btn-ghost btn-sm hidden">👁 پنهان اصل</button>
           <button id="copyBtn" class="btn btn-ghost btn-sm">کپی</button>
-          <button id="downloadTxtBtn" class="btn btn-ghost btn-sm">دانلود TXT</button>
-          <button id="downloadHtmlBtn" class="btn btn-ghost btn-sm hidden">دانلود HTML (با تصویر صفحات)</button>
+          <button id="downloadTxtBtn" class="btn btn-ghost btn-sm">TXT</button>
+          <button id="downloadDocxBtn" class="btn btn-primary btn-sm hidden">📥 DOCX</button>
+          <button id="downloadHtmlBtn" class="btn btn-ghost btn-sm hidden">📥 HTML</button>
         </div>
       </div>
       <div id="output" class="output" dir="rtl"></div>
@@ -99,11 +110,14 @@
 
 <div id="settingsModal" class="modal hidden">
   <div class="modal-card">
-    <div class="card-head"><h2>تنظیمات</h2><button id="closeSettings" class="icon-btn" style="background:#f1f5f9;color:#334155;width:34px;height:34px;border-radius:10px">✖</button></div>
-    <label>ایمیل MyMemory (سهمیه را به ۵۰ هزار کاراکتر در روز افزایش می‌دهد)</label>
+    <div class="card-head">
+      <h2>تنظیمات</h2>
+      <button id="closeSettings" class="icon-btn" style="background:#f1f5f9;color:#334155;width:34px;height:34px;border-radius:10px">✖</button>
+    </div>
+    <label>ایمیل MyMemory (سهمیه روزانه ۵۰ هزار کاراکتر)</label>
     <input id="mmEmail" type="email" dir="ltr" placeholder="you@example.com">
-    <label>کلید DeepL API (اختیاری — کیفیت بالاتر، ۵۰۰ هزار کاراکتر در ماه)</label>
-    <input id="deeplKey" type="password" dir="ltr" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx">
+    <label>کلید DeepL API (اختیاری — کیفیت بالاتر)</label>
+    <input id="deeplKey" type="password" dir="ltr" placeholder="...:fx">
     <button id="saveSettings" class="btn btn-primary btn-block">ذخیره</button>
   </div>
 </div>
@@ -111,6 +125,8 @@
 <div id="toast" class="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
