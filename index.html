@@ -10,12 +10,11 @@
 </head>
 <body>
 
-<!-- ورود -->
 <div id="loginScreen" class="login-screen">
   <div class="login-card">
     <div class="logo">📚</div>
     <h1>مترجم تخصصی سریع</h1>
-    <p class="muted">ترجمهٔ کتاب‌های علمی با واژه‌نامهٔ تخصصی</p>
+    <p class="muted">ترجمهٔ دوزبانه با حفظ ظاهر اصلی</p>
     <form id="loginForm">
       <label>نام کاربری</label><input id="username" type="text" required autocomplete="username">
       <label>رمز عبور</label><input id="password" type="password" required autocomplete="current-password">
@@ -25,7 +24,6 @@
   </div>
 </div>
 
-<!-- برنامه -->
 <div id="app" class="app hidden">
   <header class="appbar">
     <strong>📚 مترجم سریع</strong>
@@ -36,7 +34,7 @@
     </div>
   </header>
 
-  <div class="status-bar" id="statusBar">
+  <div class="status-bar">
     <span id="onlineStatus" class="status-pill online">🟢 آنلاین</span>
     <span id="wakeStatus" class="status-pill">💤 Wake Lock خاموش</span>
     <span id="usageStatus" class="status-pill">📊 مصرف: —</span>
@@ -56,11 +54,19 @@
     </section>
 
     <section class="card hidden" id="runCard">
-      <h2>۳. محدوده و شروع</h2>
+      <h2>۳. محدوده و حالت نمایش</h2>
       <div class="grid-2">
         <div><label>از صفحه</label><input id="fromPage" type="number" value="1" min="1"></div>
-        <div><label>تا صفحه</label><input id="toPage" type="number" value="200" min="1"></div>
+        <div><label>تا صفحه</label><input id="toPage" type="number" value="10" min="1"></div>
       </div>
+
+      <label>حالت نمایش خروجی</label>
+      <select id="modeSelect">
+        <option value="bilingual">📝 دو زبانه — متن اصلی + ترجمه زیر آن</option>
+        <option value="original">🖼 صفحهٔ اصلی (با عکس/جدول) + ترجمه در زیر</option>
+      </select>
+      <p id="modeHint" class="muted small"></p>
+
       <button id="startBtn" class="btn btn-primary btn-block">شروع / ادامهٔ ترجمه</button>
       <button id="cancelBtn" class="btn btn-danger btn-block hidden">لغو</button>
       <div id="progressWrap" class="progress-wrap hidden">
@@ -76,7 +82,8 @@
         <h2>۴. خروجی</h2>
         <div class="btn-row">
           <button id="copyBtn" class="btn btn-ghost btn-sm">کپی</button>
-          <button id="downloadBtn" class="btn btn-ghost btn-sm">دانلود</button>
+          <button id="downloadTxtBtn" class="btn btn-ghost btn-sm">دانلود TXT</button>
+          <button id="downloadHtmlBtn" class="btn btn-ghost btn-sm hidden">دانلود HTML (با تصویر صفحات)</button>
         </div>
       </div>
       <div id="output" class="output" dir="rtl"></div>
@@ -90,7 +97,6 @@
   </main>
 </div>
 
-<!-- مودال تنظیمات -->
 <div id="settingsModal" class="modal hidden">
   <div class="modal-card">
     <div class="card-head"><h2>تنظیمات</h2><button id="closeSettings" class="icon-btn" style="background:#f1f5f9;color:#334155;width:34px;height:34px;border-radius:10px">✖</button></div>
@@ -102,21 +108,9 @@
   </div>
 </div>
 
-<!-- مودال ادامه -->
-<div id="resumeModal" class="modal hidden">
-  <div class="modal-card">
-    <h2>ادامهٔ ترجمهٔ قبلی؟</h2>
-    <p>یک ترجمهٔ نیمه‌تمام برای همین فایل پیدا شد.</p>
-    <p id="resumeInfo" class="muted small"></p>
-    <button id="resumeYes" class="btn btn-primary btn-block">بله، ادامه بده</button>
-    <button id="resumeNo" class="btn btn-ghost btn-block">خیر، از نو شروع کن</button>
-  </div>
-</div>
-
 <div id="toast" class="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
-
