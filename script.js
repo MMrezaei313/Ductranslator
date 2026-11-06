@@ -1,9 +1,9 @@
 'use strict';
 
-/* ============ ۱) پیکربندی ============ */
 const APP = {
   USER: { username: 'mousa', password: 'tarjomeh' },
-  CHUNK_SIZE: 3000,
+  CHUNK_BILINGUAL: 600,
+  CHUNK_ORIGINAL: 3000,
   MAX_CONCURRENCY: 3,
   DB_NAME: 'mousa_tx_db',
   STORE: 'jobs',
@@ -11,9 +11,9 @@ const APP = {
   USAGE_KEY: 'mousa_usage_v1'
 };
 
-/* ============ ۲) واژه‌نامه ============ */
+/* ---------- واژه‌نامه ---------- */
 const GLOSSARIES = {
-  ceramic: {
+  ceramic:{
     'sintering':'زینتر کردن','sintered':'زینترشده','spark plasma sintering':'زینترینگ جرقه پلاسما',
     'hot pressing':'پرس گرم','isostatic pressing':'پرس ایزواستاتیک','densification':'چگالش',
     'porosity':'تخلخل','porous':'متخلخل','grain boundary':'مرز دانه','grain growth':'رشد دانه',
@@ -38,7 +38,7 @@ const GLOSSARIES = {
     'scanning electron microscopy':'میکروسکوپ الکترونی روبشی',
     'differential scanning calorimetry':'کالریمتری روبشی تفاضلی'
   },
-  physics: {
+  physics:{
     'energy':'انرژی','momentum':'تکانه','angular momentum':'تکانهٔ زاویه‌ای','velocity':'سرعت',
     'acceleration':'شتاب','force':'نیرو','mass':'جرم','inertia':'اینرسی','friction':'اصطکاک',
     'torque':'گشتاور','entropy':'آنتروپی','enthalpy':'آنتالپی','quantum':'کوانتوم',
@@ -54,7 +54,7 @@ const GLOSSARIES = {
     'viscosity':'گرانروی','turbulence':'تلاطم','oscillation':'نوسان','resonance':'تشدید',
     'semiconductor':'نیمه‌رسانا','superconductor':'ابررسانا','plasma':'پلاسما'
   },
-  chemistry: {
+  chemistry:{
     'atom':'اتم','molecule':'مولکول','ion':'یون','covalent bond':'پیوند کووالانسی',
     'ionic bond':'پیوند یونی','metallic bond':'پیوند فلزی','hydrogen bond':'پیوند هیدروژنی',
     'oxidation':'اکسایش','reduction':'کاهش','catalyst':'کاتالیزور','reagent':'واکنشگر',
@@ -67,7 +67,7 @@ const GLOSSARIES = {
     'distillation':'تقطیر','chromatography':'کروماتوگرافی','spectroscopy':'طیف‌سنجی',
     'buffer':'بافر','mole':'مول','valence':'ظرفیت','hybridization':'هیبریداسیون'
   },
-  biology: {
+  biology:{
     'cell':'سلول','membrane':'غشا','protein':'پروتئین','enzyme':'آنزیم','gene':'ژن',
     'transcription':'رونویسی','mutation':'جهش','metabolism':'متابولیسم',
     'photosynthesis':'فتوسنتز','respiration':'تنفس','tissue':'بافت','organ':'اندام',
@@ -77,7 +77,7 @@ const GLOSSARIES = {
     'biodiversity':'تنوع زیستی','evolution':'فرگشت','species':'گونه','ribosome':'ریبوزوم',
     'mitochondria':'میتوکندری','chromosome':'کروموزوم','receptor':'گیرنده','immunity':'ایمنی'
   },
-  general: {
+  general:{
     'introduction':'مقدمه','conclusion':'نتیجه‌گیری','chapter':'فصل','figure':'شکل',
     'table':'جدول','equation':'معادله','method':'روش','experiment':'آزمایش','result':'نتیجه',
     'discussion':'بحث','analysis':'تحلیل','sample':'نمونه','measurement':'اندازه‌گیری',
@@ -99,7 +99,7 @@ const DOMAIN_KEYWORDS = {
   biology:['cell','protein','gene','dna','rna','enzyme','membrane','organism','tissue','species','evolution','bacteria','virus','hormone','neuron','photosynthesis','metabolism','chromosome','receptor','ecosystem']
 };
 
-/* ============ ۳) حالت ============ */
+/* ---------- state ---------- */
 const state = {
   pdf: null, fileName: '', pageCount: 0, fileHash: '',
   currentJob: null, running: false, cancelled: false,
@@ -107,12 +107,13 @@ const state = {
   settings: { mmEmail: '', deeplKey: '' }
 };
 
-/* ============ ۴) ابزار ============ */
+/* ---------- utilities ---------- */
 const $ = s => document.querySelector(s);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const escapeRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const escapeHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
-let toastTimer = null;
+let toastTimer;
 function toast(msg, type = '') {
   const el = $('#toast');
   el.textContent = msg;
@@ -121,7 +122,7 @@ function toast(msg, type = '') {
   toastTimer = setTimeout(() => el.className = 'toast ' + type, 3200);
 }
 
-/* ============ ۵) IndexedDB ============ */
+/* ---------- IndexedDB ---------- */
 function openDB() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(APP.DB_NAME, 1);
@@ -138,8 +139,7 @@ function openDB() {
 async function dbGet(hash) {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const tx = db.transaction(APP.STORE, 'readonly');
-    const req = tx.objectStore(APP.STORE).get(hash);
+    const req = db.transaction(APP.STORE, 'readonly').objectStore(APP.STORE).get(hash);
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
   });
@@ -163,7 +163,7 @@ async function dbDelete(hash) {
   });
 }
 
-/* ============ ۶) مصرف سرویس‌ها ============ */
+/* ---------- usage ---------- */
 function loadUsage() {
   try { return JSON.parse(localStorage.getItem(APP.USAGE_KEY) || '{}'); }
   catch { return {}; }
@@ -177,7 +177,6 @@ function trackUsage(service, chars) {
   const u = loadUsage();
   if (!u[service]) u[service] = {};
   const s = u[service];
-
   if (service === 'deepl') {
     if (s.month !== month) { s.month = month; s.count = 0; }
     s.count += chars;
@@ -197,7 +196,7 @@ function updateUsageStatus() {
   $('#usageStatus').textContent = '📊 ' + (parts.join(' · ') || 'مصرف: —');
 }
 
-/* ============ ۷) ورود ============ */
+/* ---------- login ---------- */
 $('#loginForm').addEventListener('submit', e => {
   e.preventDefault();
   const u = $('#username').value.trim();
@@ -218,9 +217,47 @@ $('#logoutBtn').addEventListener('click', () => {
   location.reload();
 });
 
-/* ============ ۸) راه‌اندازی ============ */
+/* ---------- page observer ---------- */
+let pageObserver = null;
+
+function setupPageObserver() {
+  if (pageObserver) pageObserver.disconnect();
+  pageObserver = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      const card = entry.target;
+      const canvas = card.querySelector('canvas');
+      if (!canvas) continue;
+      if (entry.isIntersecting) {
+        if (!card.dataset.rendered) {
+          card.dataset.rendered = '1';
+          renderPageCanvas(card.dataset.page, canvas).catch(err => {
+            console.warn('render fail', err);
+            card.dataset.rendered = '';
+          });
+        }
+      } else if (card.dataset.rendered === '1' && canvas.width > 0) {
+        canvas.width = 0; canvas.height = 0;
+        card.dataset.rendered = '';
+      }
+    }
+  }, { rootMargin: '500px 0px', threshold: 0 });
+}
+
+async function renderPageCanvas(pageNum, canvas) {
+  if (!state.pdf) return;
+  const page = await state.pdf.getPage(parseInt(pageNum, 10));
+  const container = canvas.parentElement;
+  const targetW = Math.min(900, container.clientWidth || 800);
+  const baseVp = page.getViewport({ scale: 1 });
+  const scale = Math.min(2, targetW / baseVp.width);
+  const vp = page.getViewport({ scale });
+  canvas.width = Math.round(vp.width);
+  canvas.height = Math.round(vp.height);
+  await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+}
+
+/* ---------- init ---------- */
 function initApp() {
-  // تنظیمات
   try {
     const s = JSON.parse(localStorage.getItem(APP.SETTINGS_KEY) || '{}');
     Object.assign(state.settings, s);
@@ -228,40 +265,31 @@ function initApp() {
   $('#mmEmail').value = state.settings.mmEmail || '';
   $('#deeplKey').value = state.settings.deeplKey || '';
 
-  // پر کردن سلکت‌ها
   const dSel = $('#domainSelect'), gSel = $('#glossaryViewSelect');
   Object.entries(DOMAIN_INFO).forEach(([k, v]) => {
     dSel.innerHTML += `<option value="${k}">${v}</option>`;
     gSel.innerHTML += `<option value="${k}">${v}</option>`;
   });
 
-  // رویدادها
   $('#pdfInput').addEventListener('change', e => {
     if (e.target.files[0]) loadPDF(e.target.files[0]);
   });
   $('#domainSelect').addEventListener('change', updateGlossary);
-  $('#glossaryViewSelect').addEventListener('change', renderGlossary);
+  $('#glossaryViewSelect').addEventListener('change', updateGlossary);
+  $('#modeSelect').addEventListener('change', updateModeHint);
   $('#startBtn').addEventListener('click', startTranslation);
   $('#cancelBtn').addEventListener('click', () => { state.cancelled = true; toast('در حال لغو…'); });
   $('#copyBtn').addEventListener('click', copyOutput);
-  $('#downloadBtn').addEventListener('click', downloadOutput);
+  $('#downloadTxtBtn').addEventListener('click', downloadTxt);
+  $('#downloadHtmlBtn').addEventListener('click', downloadHtml);
   $('#clearJobBtn').addEventListener('click', clearCurrentJob);
   $('#wakeLockBtn').addEventListener('click', onWakeLockBtn);
   $('#settingsBtn').addEventListener('click', () => $('#settingsModal').classList.remove('hidden'));
   $('#closeSettings').addEventListener('click', () => $('#settingsModal').classList.add('hidden'));
   $('#saveSettings').addEventListener('click', saveSettings);
 
-  // آنلاین/آفلاین
-  window.addEventListener('online', () => {
-    updateOnlineStatus();
-    toast('اتصال برقرار شد — ادامه می‌دهم', 'success');
-  });
-  window.addEventListener('offline', () => {
-    updateOnlineStatus();
-    toast('اتصال قطع شد — صبر می‌کنم تا برگردد', 'error');
-  });
-
-  // بازگشت به تب
+  window.addEventListener('online', () => { updateOnlineStatus(); toast('اتصال برقرار شد — ادامه می‌دهم', 'success'); });
+  window.addEventListener('offline', () => { updateOnlineStatus(); toast('اتصال قطع شد — صبر می‌کنم', 'error'); });
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       updateOnlineStatus();
@@ -269,9 +297,10 @@ function initApp() {
     }
   });
 
+  setupPageObserver();
   updateOnlineStatus();
   updateGlossary();
-  renderGlossary();
+  updateModeHint();
   updateUsageStatus();
 }
 
@@ -283,41 +312,32 @@ function saveSettings() {
   toast('ذخیره شد', 'success');
 }
 
-/* ============ ۹) وضعیت آنلاین ============ */
-function updateOnlineStatus() {
-  const el = $('#onlineStatus');
-  if (navigator.onLine) {
-    el.textContent = '🟢 آنلاین';
-    el.className = 'status-pill online';
-  } else {
-    el.textContent = '🔴 آفلاین';
-    el.className = 'status-pill offline';
-  }
+function updateModeHint() {
+  const m = $('#modeSelect').value;
+  $('#modeHint').textContent = m === 'bilingual'
+    ? 'هر بخش: متن اصلی انگلیسی بالا، ترجمهٔ فارسی زیر آن. مناسب یادگیری اصطلاحات.'
+    : 'هر صفحه به‌صورت عکس کامل رندر می‌شود (شامل تصاویر و جداول)، سپس ترجمهٔ فارسی زیر آن.';
 }
 
-/* ============ ۱۰) Wake Lock ============ */
+/* ---------- online ---------- */
+function updateOnlineStatus() {
+  const el = $('#onlineStatus');
+  if (navigator.onLine) { el.textContent = '🟢 آنلاین'; el.className = 'status-pill online'; }
+  else { el.textContent = '🔴 آفلاین'; el.className = 'status-pill offline'; }
+}
+
+/* ---------- wake lock ---------- */
 async function requestWakeLock() {
-  if (!('wakeLock' in navigator)) {
-    toast('Wake Lock پشتیبانی نمی‌شود', 'error');
-    return;
-  }
+  if (!('wakeLock' in navigator)) { toast('Wake Lock پشتیبانی نمی‌شود', 'error'); return; }
   try {
     state.wakeLock = await navigator.wakeLock.request('screen');
-    state.wakeLock.addEventListener('release', () => {
-      state.wakeLock = null;
-      updateWakeUI();
-    });
+    state.wakeLock.addEventListener('release', () => { state.wakeLock = null; updateWakeUI(); });
     state.wakeLockWanted = true;
     updateWakeUI();
-  } catch (e) {
-    toast('Wake Lock ناموفق: ' + e.message, 'error');
-  }
+  } catch (e) { toast('Wake Lock ناموفق: ' + e.message, 'error'); }
 }
 async function releaseWakeLock() {
-  if (state.wakeLock) {
-    try { await state.wakeLock.release(); } catch {}
-    state.wakeLock = null;
-  }
+  if (state.wakeLock) { try { await state.wakeLock.release(); } catch {} state.wakeLock = null; }
   state.wakeLockWanted = false;
   updateWakeUI();
 }
@@ -326,7 +346,7 @@ function updateWakeUI() {
   $('#wakeLockBtn').classList.toggle('active', on);
   $('#wakeLockBtn').textContent = on ? '🔆' : '💤';
   const el = $('#wakeStatus');
-  el.textContent = on ? '🔆 صفحه روشن می‌ماند' : '💤 Wake Lock خاموش';
+  el.textContent = on ? '🔆 صفحه روشن' : '💤 Wake Lock خاموش';
   el.className = 'status-pill' + (on ? ' active' : '');
 }
 async function onWakeLockBtn() {
@@ -334,7 +354,7 @@ async function onWakeLockBtn() {
   else await requestWakeLock();
 }
 
-/* ============ ۱۱) PDF و هش ============ */
+/* ---------- PDF ---------- */
 async function loadPDF(file) {
   try {
     const buf = await file.arrayBuffer();
@@ -347,30 +367,30 @@ async function loadPDF(file) {
     $('#fileInfo').innerHTML =
       `<strong>${file.name}</strong><br>${state.pageCount} صفحه • ${(file.size/1024/1024).toFixed(2)} مگابایت`;
 
-    $('#toPage').value = state.pageCount;
+    $('#toPage').value = Math.min(10, state.pageCount);
     $('#toPage').max = state.pageCount;
     $('#fromPage').max = state.pageCount;
 
-    // تشخیص حوزه
-    const sample = await extractPages(1, Math.min(3, state.pageCount));
+    const sample = await extractPage(1) + ' ' + await extractPage(Math.min(2, state.pageCount));
     const domain = detectDomain(sample);
-    $('#detectedDomain').innerHTML =
-      `<span class="badge primary">${DOMAIN_INFO[domain]}</span>`;
+    $('#detectedDomain').innerHTML = `<span class="badge primary">${DOMAIN_INFO[domain]}</span>`;
     $('#domainSelect').value = domain;
     updateGlossary();
 
-    // بررسی وجود کار قبلی
     const existing = await dbGet(state.fileHash);
     if (existing) {
-      const done = existing.chunks.filter(c => c.status === 'done').length;
-      const total = existing.chunks.length;
       $('#clearJobBtn').classList.remove('hidden');
-      $('#startBtn').textContent = 'شروع / ادامهٔ ترجمه';
-      $('#progressWrap').classList.remove('hidden');
+      $('#modeSelect').value = existing.mode || 'bilingual';
+      $('#modeSelect').disabled = true;
+      updateModeHint();
       updateProgressUI(existing);
-      toast(`پیشرفت ذخیره‌شده پیدا شد: ${done}/${total}`, 'success');
+      $('#progressWrap').classList.remove('hidden');
+      state.currentJob = existing;
+      renderOutput(existing);
+      toast(`پیشرفت ذخیره‌شده: ${countDone(existing)}/${countTotal(existing)}`, 'success');
     } else {
       $('#clearJobBtn').classList.add('hidden');
+      $('#modeSelect').disabled = false;
       $('#progressWrap').classList.add('hidden');
     }
 
@@ -382,14 +402,11 @@ async function loadPDF(file) {
   }
 }
 
-async function extractPages(from, to) {
-  let text = '';
-  for (let i = from; i <= to; i++) {
-    const page = await state.pdf.getPage(i);
-    const content = await page.getTextContent();
-    text += content.items.map(it => it.str + (it.hasEOL ? '\n' : ' ')).join('') + '\n\n';
-  }
-  return text.replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+async function extractPage(pageNum) {
+  const page = await state.pdf.getPage(pageNum);
+  const content = await page.getTextContent();
+  return content.items.map(it => it.str + (it.hasEOL ? '\n' : ' ')).join('')
+    .replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
 }
 
 function detectDomain(text) {
@@ -406,38 +423,52 @@ function detectDomain(text) {
   return max >= 3 ? best : 'general';
 }
 
-/* ============ ۱۲) واژه‌نامه ============ */
+/* ---------- glossary ---------- */
 function updateGlossary() {
-  const d = $('#domainSelect').value;
+  const d = $('#glossaryViewSelect').value;
   const g = GLOSSARIES[d] || {};
   const rows = Object.entries(g)
-    .map(([en, fa]) => `<div class="g-row"><span class="g-en" dir="ltr">${en}</span><span class="g-fa">${fa}</span></div>`)
+    .map(([en, fa]) => `<div class="g-row"><span class="g-en" dir="ltr">${escapeHtml(en)}</span><span class="g-fa">${escapeHtml(fa)}</span></div>`)
     .join('');
   $('#glossaryTable').innerHTML = rows || '<p class="muted" style="padding:12px">موردی نیست</p>';
 }
-function renderGlossary() { updateGlossary(); }
 
-/* ============ ۱۳) محافظت از واژه‌نامه ============ */
-function protectGlossary(text, glossary) {
-  const map = [];
+function protectGlossary(text, glossary, map) {
   let out = text;
   const terms = Object.keys(glossary).sort((a, b) => b.length - a.length);
   for (const term of terms) {
     const re = new RegExp('\\b' + escapeRe(term) + '\\b', 'gi');
     out = out.replace(re, () => {
-      const i = map.length;
-      map.push({ m: `[[${i}]]`, t: glossary[term] });
-      return `[[${i}]]`;
+      let entry = map.find(e => e.term === term);
+      if (!entry) {
+        entry = { m: `[[${map.length}]]`, t: glossary[term], term };
+        map.push(entry);
+      }
+      return entry.m;
     });
   }
-  return { text: out, map };
-}
-function restoreGlossary(text, map) {
-  if (!map || !map.length) return text;
-  return text.replace(/\[\[\s*(\d+)\s*\]\]/g, (m, i) => map[+i] ? map[+i].t : m);
+  return out;
 }
 
-/* ============ ۱۴) تکه‌بندی ============ */
+/* ترجمه را برمی‌گرداند (فارسی) */
+function restoreGlossary(text, map) {
+  if (!map || !map.length) return text;
+  return text.replace(/\[\[\s*(\d+)\s*\]\]/g, (m, i) => {
+    const e = map[Number(i)];
+    return (e && e.t) ? e.t : m;
+  });
+}
+
+/* متن اصلی را برمی‌گرداند (انگلیسی) — جدید */
+function restoreOriginal(text, map) {
+  if (!map || !map.length) return text;
+  return text.replace(/\[\[\s*(\d+)\s*\]\]/g, (m, i) => {
+    const e = map[Number(i)];
+    return (e && e.term) ? e.term : m;
+  });
+}
+
+/* ---------- chunking ---------- */
 function splitSentences(text) {
   const out = [];
   let buf = '';
@@ -451,6 +482,7 @@ function splitSentences(text) {
   if (buf.trim()) out.push(buf);
   return out.map(s => s.trim()).filter(Boolean);
 }
+
 function chunkText(text, maxLen) {
   const ss = splitSentences(text);
   const chunks = [];
@@ -472,10 +504,9 @@ function chunkText(text, maxLen) {
   return chunks;
 }
 
-/* ============ ۱۵) سرویس‌ها ============ */
+/* ---------- services ---------- */
 async function googleFree(text) {
-  const url = 'https://translate.googleapis.com/translate_a/single'
-    + '?client=gtx&sl=en&tl=fa&dt=t&q=' + encodeURIComponent(text);
+  const url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=fa&dt=t&q=' + encodeURIComponent(text);
   const res = await fetch(url);
   if (!res.ok) throw new Error('Google ' + res.status);
   const data = await res.json();
@@ -483,13 +514,11 @@ async function googleFree(text) {
   trackUsage('googleFree', text.length);
   return out;
 }
-
 async function myMemory(text) {
   const parts = chunkText(text, 450);
   let out = '';
   for (const p of parts) {
-    let url = 'https://api.mymemory.translated.net/get?q='
-      + encodeURIComponent(p) + '&langpair=en|fa';
+    let url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(p) + '&langpair=en|fa';
     if (state.settings.mmEmail) url += '&de=' + encodeURIComponent(state.settings.mmEmail);
     const res = await fetch(url);
     if (!res.ok) throw new Error('MyMemory ' + res.status);
@@ -501,35 +530,26 @@ async function myMemory(text) {
   trackUsage('mymemory', text.length);
   return out.trim();
 }
-
 async function libreTranslate(text) {
   const instances = ['https://libretranslate.com', 'https://translate.argosopentech.com'];
   for (const base of instances) {
     try {
       const res = await fetch(base + '/translate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ q: text, source: 'en', target: 'fa' })
       });
-      if (res.ok) {
-        const d = await res.json();
-        return d.translatedText;
-      }
+      if (res.ok) { const d = await res.json(); return d.translatedText; }
     } catch {}
   }
   throw new Error('LibreTranslate ناموفق');
 }
-
 async function deeplTranslate(text) {
   if (!state.settings.deeplKey) throw new Error('کلید DeepL تنظیم نشده');
   const isFree = state.settings.deeplKey.endsWith(':fx');
   const base = isFree ? 'https://api-free.deepl.com' : 'https://api.deepl.com';
   const res = await fetch(base + '/v2/translate', {
     method: 'POST',
-    headers: {
-      'Authorization': 'DeepL-Auth-Key ' + state.settings.deeplKey,
-      'Content-Type': 'application/json'
-    },
+    headers: { 'Authorization': 'DeepL-Auth-Key ' + state.settings.deeplKey, 'Content-Type': 'application/json' },
     body: JSON.stringify({ text: [text], source_lang: 'EN', target_lang: 'FA' })
   });
   if (!res.ok) throw new Error('DeepL ' + res.status);
@@ -537,21 +557,31 @@ async function deeplTranslate(text) {
   trackUsage('deepl', text.length);
   return d.translations[0].text;
 }
-
 async function translateWithFallback(text) {
   const order = [];
   if (state.settings.deeplKey) order.push(deeplTranslate);
   order.push(googleFree, myMemory, libreTranslate);
-
   let lastErr;
   for (const fn of order) {
     try { return await fn(text); }
     catch (e) { lastErr = e; }
   }
-  throw lastErr || new Error('همهٔ سرویس‌ها ناموفق');
+  throw lastErr || new Error('همه ناموفق');
 }
 
-/* ============ ۱۶) جریان اصلی ============ */
+/* ---------- counters ---------- */
+function countDone(job) {
+  let n = 0;
+  for (const p of job.pages) for (const c of p.chunks) if (c.status === 'done') n++;
+  return n;
+}
+function countTotal(job) {
+  let n = 0;
+  for (const p of job.pages) n += p.chunks.length;
+  return n;
+}
+
+/* ---------- main flow ---------- */
 async function startTranslation() {
   if (!state.pdf) { toast('ابتدا PDF را انتخاب کنید', 'error'); return; }
   if (state.running) return;
@@ -560,101 +590,109 @@ async function startTranslation() {
   const to = Math.min(state.pageCount, parseInt($('#toPage').value, 10) || 1);
   if (from > to) { toast('محدوده معتبر نیست', 'error'); return; }
 
+  const mode = $('#modeSelect').value;
+  const chunkSize = mode === 'bilingual' ? APP.CHUNK_BILINGUAL : APP.CHUNK_ORIGINAL;
+
   state.running = true;
   state.cancelled = false;
   $('#startBtn').classList.add('hidden');
   $('#cancelBtn').classList.remove('hidden');
   $('#progressWrap').classList.remove('hidden');
   $('#outputCard').classList.remove('hidden');
-  $('#output').textContent = '';
   $('#clearJobBtn').classList.add('hidden');
+  $('#downloadHtmlBtn').classList.toggle('hidden', mode !== 'original');
+  $('#modeSelect').disabled = true;
 
   try {
-    // بررسی وجود کار قبلی
     let job = await dbGet(state.fileHash);
-    let isResume = false;
 
-    if (job && job.chunks.some(c => c.status === 'done' || c.status === 'failed')) {
-      // از قبل نیمه‌تمام است
-      const done = job.chunks.filter(c => c.status === 'done').length;
-      const total = job.chunks.length;
-      if (done > 0 && done < total) {
-        const go = confirm(`پیشرفت ذخیره‌شده موجود است (${done}/${total} بخش). ادامه بدهم؟\n\n«تأیید» = ادامه، «لغو» = شروع از نو`);
-        if (!go) {
-          await dbDelete(state.fileHash);
-          job = null;
-        } else {
-          isResume = true;
-        }
+    if (job) {
+      const done = countDone(job);
+      const total = countTotal(job);
+
+      if (total === 0) {
+        await dbDelete(state.fileHash);
+        job = null;
       } else if (done === total) {
-        // کامل است
-        if (confirm('این فایل قبلاً کامل ترجمه شده. دوباره از نو ترجمه کنم؟')) {
-          await dbDelete(state.fileHash);
-          job = null;
-        } else {
+        if (!confirm('این فایل قبلاً کامل ترجمه شده. از نو ترجمه کنم؟')) {
           state.currentJob = job;
-          renderOutput();
-          toast('ترجمهٔ کامل بارگذاری شد', 'success');
+          renderOutput(job);
+          updateProgressUI(job);
           return;
         }
+        await dbDelete(state.fileHash);
+        job = null;
+      } else if (done > 0) {
+        if (!confirm(`${done}/${total} بخش قبلاً ترجمه شده. ادامه بدهم؟\n\n«لغو» = از نو`)) {
+          await dbDelete(state.fileHash);
+          job = null;
+        }
       } else {
+        await dbDelete(state.fileHash);
         job = null;
       }
-    } else {
-      job = null;
     }
 
-    // اگر کار جدید است
     if (!job) {
-      setProgress(0, 'در حال استخراج متن از PDF…');
-      const rawText = await extractPages(from, to);
-      if (!rawText || rawText.length < 50) throw new Error('متنی استخراج نشد (PDF اسکن‌شده؟)');
+      setProgress(0, 'استخراج متن از PDF...');
+      const glossary = GLOSSARIES[$('#domainSelect').value] || {};
+      const glossaryMap = [];
+      const pages = [];
 
-      const domain = $('#domainSelect').value;
-      const glossary = GLOSSARIES[domain] || {};
-      const { text: protectedText, map } = protectGlossary(rawText, glossary);
-      const rawChunks = chunkText(protectedText, APP.CHUNK_SIZE);
+      for (let p = from; p <= to; p++) {
+        if (state.cancelled) break;
+        const rawPage = await extractPage(p);
+        if (!rawPage.trim()) {
+          pages.push({ pageNum: p, chunks: [] });
+          continue;
+        }
+        const protectedText = protectGlossary(rawPage, glossary, glossaryMap);
+        const parts = chunkText(protectedText, chunkSize);
+        pages.push({
+          pageNum: p,
+          chunks: parts.map((text, i) => ({
+            id: `${p}-${i}`,
+            text,
+            translated: null,
+            status: 'pending'
+          }))
+        });
+        if ((p - from) % 5 === 0) {
+          setProgress(Math.min(5, Math.round(((p - from + 1) / (to - from + 1)) * 5)), `استخراج صفحهٔ ${p}...`);
+        }
+      }
 
       job = {
-        hash: state.fileHash,
-        fileName: state.fileName,
-        pageCount: state.pageCount,
-        domain,
-        from, to,
-        glossaryMap: map, // برای بازگردانی
-        chunks: rawChunks.map((text, i) => ({
-          index: i, text, status: 'pending', translated: null
-        })),
-        createdAt: Date.now(),
-        updatedAt: Date.now()
+        hash: state.fileHash, fileName: state.fileName, pageCount: state.pageCount,
+        from, to, mode, domain: $('#domainSelect').value,
+        glossaryMap, pages,
+        createdAt: Date.now(), updatedAt: Date.now()
       };
       await dbPut(job);
-      toast(`${rawChunks.length} بخش آماده شد — شروع ترجمه`, 'success');
-    } else {
-      toast('ادامهٔ ترجمهٔ قبلی…', 'success');
+      toast('متن استخراج شد — شروع ترجمه', 'success');
     }
 
-    // ریست بخش‌های گیرکرده
-    job.chunks.forEach(c => {
+    for (const p of job.pages) for (const c of p.chunks) {
       if (c.status === 'translating') c.status = 'pending';
-    });
+    }
     await dbPut(job);
 
     state.currentJob = job;
-    renderOutput();
+    // پاک کردن خروجی قبلی برای rebuild تازه
+    $('#output').innerHTML = '';
+    $('#output').dataset.hash = '';
+    $('#output').dataset.mode = '';
+    renderOutput(job);
     updateProgressUI(job);
 
-    // درخواست Wake Lock
     if (!state.wakeLock) requestWakeLock();
 
     await runWorkers(job);
 
-    if (state.cancelled) {
-      toast('ترجمه لغو شد (پیشرفت ذخیره شده)', 'error');
-    } else {
-      const done = job.chunks.filter(c => c.status === 'done').length;
-      const failed = job.chunks.filter(c => c.status === 'failed').length;
-      toast(`پایان: ${done} موفق، ${failed} ناموفق`, failed ? 'error' : 'success');
+    if (state.cancelled) toast('لغو شد (پیشرفت ذخیره شده)', 'error');
+    else {
+      const failed = job.pages.flatMap(p => p.chunks).filter(c => c.status === 'failed').length;
+      toast(failed ? `پایان با ${failed} خطا` : '✅ ترجمه کامل شد', failed ? 'error' : 'success');
     }
   } catch (e) {
     console.error(e);
@@ -671,29 +709,27 @@ async function runWorkers(job) {
   let lastRender = 0;
   const scheduleRender = () => {
     const now = Date.now();
-    if (now - lastRender > 800) {
+    if (now - lastRender > 900) {
       lastRender = now;
-      renderOutput();
+      renderOutput(job);
       updateProgressUI(job);
     }
   };
 
+  const queue = [];
+  for (const page of job.pages) for (const c of page.chunks) {
+    if (c.status === 'pending') queue.push(c);
+  }
+
   async function worker() {
-    while (true) {
+    while (queue.length) {
       if (state.cancelled) break;
-
-      // اگر آفلاین است صبر کن
-      if (!navigator.onLine) {
-        await waitForOnline();
-        if (state.cancelled) break;
-      }
-
-      const chunk = job.chunks.find(c => c.status === 'pending');
+      if (!navigator.onLine) await waitForOnline();
+      if (state.cancelled) break;
+      const chunk = queue.shift();
       if (!chunk) break;
 
       chunk.status = 'translating';
-      await dbPut(job);
-
       try {
         const translated = await translateWithFallback(chunk.text);
         chunk.translated = translated;
@@ -702,64 +738,172 @@ async function runWorkers(job) {
         chunk.status = 'failed';
         chunk.error = e.message;
       }
-
       job.updatedAt = Date.now();
-      await dbPut(job); // ذخیرهٔ فوری بعد از هر بخش
+      await dbPut(job);
       scheduleRender();
     }
   }
 
-  const workers = Array.from({ length: APP.MAX_CONCURRENCY }, () => worker());
-  await Promise.all(workers);
-  renderOutput();
+  await Promise.all(Array.from({ length: APP.MAX_CONCURRENCY }, () => worker()));
+  renderOutput(job);
   updateProgressUI(job);
 }
 
 function waitForOnline() {
   return new Promise(resolve => {
     if (navigator.onLine) return resolve();
-    const handler = () => {
-      window.removeEventListener('online', handler);
-      clearInterval(check);
-      resolve();
-    };
+    const handler = () => { window.removeEventListener('online', handler); clearInterval(check); resolve(); };
     const check = setInterval(() => {
-      if (navigator.onLine) {
-        window.removeEventListener('online', handler);
-        clearInterval(check);
-        resolve();
-      }
+      if (navigator.onLine) { window.removeEventListener('online', handler); clearInterval(check); resolve(); }
     }, 2000);
     window.addEventListener('online', handler);
   });
 }
 
-function renderOutput() {
-  if (!state.currentJob) return;
-  const job = state.currentJob;
-  const map = job.glossaryMap || [];
+/* ---------- rendering (بهینه) ---------- */
+function renderOutput(job) {
+  if (!job) return;
+  const output = $('#output');
 
-  const parts = job.chunks.map(c => {
-    if (c.status === 'done' && c.translated) return restoreGlossary(c.translated, map);
-    if (c.status === 'failed') return `[⚠️ بخش ${c.index + 1} ناموفق: ${c.error || ''}]`;
-    if (c.status === 'translating') return `[⏳ بخش ${c.index + 1} در حال ترجمه…]`;
-    return `[⏸ بخش ${c.index + 1} در انتظار]`;
-  });
+  const needsRebuild =
+    output.dataset.hash !== job.hash ||
+    output.dataset.mode !== job.mode ||
+    output.children.length === 0;
 
-  $('#output').textContent = parts.join('\n\n');
-  $('#outputCard').classList.remove('hidden');
+  if (needsRebuild) {
+    output.innerHTML = '';
+    output.dataset.hash = job.hash;
+    output.dataset.mode = job.mode;
+
+    if (job.mode === 'bilingual') {
+      for (const page of job.pages) {
+        if (!page.chunks.length) continue;
+        output.appendChild(pageMarker(page.pageNum));
+        for (const chunk of page.chunks) {
+          output.appendChild(buildBilingualPair(chunk, job.glossaryMap));
+        }
+      }
+    } else {
+      setupPageObserver();
+      for (const page of job.pages) {
+        if (!page.chunks.length) continue;
+        const card = buildOriginalPageCard(page, job.glossaryMap);
+        output.appendChild(card);
+        if (pageObserver) pageObserver.observe(card);
+      }
+    }
+  } else {
+    // فقط متن‌ها را به‌روزرسانی کن
+    if (job.mode === 'bilingual') {
+      for (const page of job.pages) {
+        for (const chunk of page.chunks) {
+          const el = output.querySelector(`.bilingual-pair[data-chunk-id="${chunk.id}"] .pair-translated`);
+          if (el) updateBilingualTranslated(el, chunk, job.glossaryMap);
+        }
+      }
+    } else {
+      for (const page of job.pages) {
+        const card = output.querySelector(`.page-card[data-page="${page.pageNum}"]`);
+        if (!card) continue;
+        const trans = card.querySelector('.page-translation');
+        if (trans) updatePageTranslation(trans, page, job.glossaryMap);
+      }
+    }
+  }
+}
+
+function pageMarker(num) {
+  const el = document.createElement('div');
+  el.className = 'page-marker';
+  el.textContent = `صفحهٔ ${num}`;
+  return el;
+}
+
+function buildBilingualPair(chunk, map) {
+  const wrap = document.createElement('div');
+  wrap.className = 'bilingual-pair';
+  wrap.dataset.chunkId = chunk.id;
+
+  const orig = document.createElement('div');
+  orig.className = 'pair-original';
+  orig.dir = 'ltr';
+  orig.textContent = restoreOriginal(chunk.text, map); // ← انگلیسی
+  wrap.appendChild(orig);
+
+  const trans = document.createElement('div');
+  trans.className = 'pair-translated';
+  trans.dir = 'rtl';
+  updateBilingualTranslated(trans, chunk, map);
+  wrap.appendChild(trans);
+
+  return wrap;
+}
+
+function updateBilingualTranslated(el, chunk, map) {
+  el.classList.remove('error', 'pending');
+  if (chunk.status === 'done') {
+    el.textContent = restoreGlossary(chunk.translated, map);
+  } else if (chunk.status === 'failed') {
+    el.textContent = `⚠️ ${chunk.error || 'خطا'}`;
+    el.classList.add('error');
+  } else if (chunk.status === 'translating') {
+    el.textContent = '⏳ در حال ترجمه…';
+    el.classList.add('pending');
+  } else {
+    el.textContent = '⏸ در انتظار';
+    el.classList.add('pending');
+  }
+}
+
+function buildOriginalPageCard(page, map) {
+  const card = document.createElement('div');
+  card.className = 'page-card';
+  card.dataset.page = page.pageNum;
+
+  card.appendChild(pageMarker(page.pageNum));
+
+  const canvas = document.createElement('canvas');
+  canvas.className = 'page-canvas';
+  card.appendChild(canvas);
+
+  const trans = document.createElement('div');
+  trans.className = 'page-translation';
+  trans.dir = 'rtl';
+  updatePageTranslation(trans, page, map);
+  card.appendChild(trans);
+
+  return card;
+}
+
+function updatePageTranslation(el, page, map) {
+  if (!page.chunks.length) {
+    el.textContent = '(این صفحه متن استخراج‌شدنی ندارد)';
+    return;
+  }
+  if (page.chunks.every(c => c.status === 'done')) {
+    el.textContent = page.chunks
+      .map(c => restoreGlossary(c.translated || '', map))
+      .join(' ');
+    return;
+  }
+  const done = page.chunks.filter(c => c.status === 'done').length;
+  const failed = page.chunks.filter(c => c.status === 'failed').length;
+  if (done === 0 && failed === 0) {
+    el.textContent = '⏳ در انتظار ترجمه…';
+  } else {
+    el.textContent = `⏳ ${done}/${page.chunks.length} بخش ترجمه شده${failed ? ` (${failed} خطا)` : ''}`;
+  }
 }
 
 function updateProgressUI(job) {
-  const total = job.chunks.length;
-  const done = job.chunks.filter(c => c.status === 'done').length;
-  const failed = job.chunks.filter(c => c.status === 'failed').length;
+  const total = countTotal(job);
+  const done = countDone(job);
+  const failed = job.pages.flatMap(p => p.chunks).filter(c => c.status === 'failed').length;
   const pct = total ? Math.round(((done + failed) / total) * 100) : 0;
 
   $('#progressBar').style.width = pct + '%';
   $('#progressText').textContent = `ترجمه: ${done + failed}/${total} بخش`;
-  $('#chunkStats').textContent =
-    `✅ موفق: ${done}   ⚠️ ناموفق: ${failed}   ⏳ در انتظار: ${total - done - failed}`;
+  $('#chunkStats').textContent = `✅ موفق: ${done}   ⚠️ ناموفق: ${failed}   ⏳ در انتظار: ${total - done - failed}`;
 }
 
 function setProgress(pct, txt) {
@@ -773,54 +917,114 @@ async function clearCurrentJob() {
   if (!confirm('ذخیرهٔ این فایل حذف شود و از نو شروع کنیم؟')) return;
   await dbDelete(state.fileHash);
   state.currentJob = null;
-  $('#output').textContent = '';
+  $('#output').innerHTML = '';
+  $('#output').dataset.hash = '';
+  $('#output').dataset.mode = '';
   $('#outputCard').classList.add('hidden');
   $('#progressWrap').classList.add('hidden');
   $('#clearJobBtn').classList.add('hidden');
-  toast('ذخیرهٔ قبلی حذف شد', 'success');
+  $('#modeSelect').disabled = false;
+  toast('ذخیره حذف شد', 'success');
 }
 
-/* ============ ۱۷) خروجی ============ */
+/* ---------- output ---------- */
 async function copyOutput() {
-  const txt = state.currentJob
-    ? state.currentJob.chunks
-        .filter(c => c.status === 'done')
-        .map(c => restoreGlossary(c.translated || '', state.currentJob.glossaryMap || []))
-        .join('\n\n')
-    : $('#output').textContent;
-  if (!txt.trim()) { toast('متنی برای کپی نیست', 'error'); return; }
-  try {
-    await navigator.clipboard.writeText(txt);
-    toast('کپی شد', 'success');
-  } catch {
-    toast('کپی ناموفق', 'error');
+  const job = state.currentJob;
+  if (!job) { toast('خروجی خالی', 'error'); return; }
+  const txt = buildPlainText(job);
+  if (!txt.trim()) { toast('چیزی ترجمه نشده', 'error'); return; }
+  try { await navigator.clipboard.writeText(txt); toast('کپی شد', 'success'); }
+  catch { toast('کپی ناموفق', 'error'); }
+}
+
+function buildPlainText(job) {
+  const lines = [];
+  for (const page of job.pages) {
+    if (!page.chunks.length) continue;
+    lines.push(`════════ صفحهٔ ${page.pageNum} ════════`);
+    lines.push('');
+    for (const chunk of page.chunks) {
+      if (job.mode === 'bilingual') {
+        lines.push('▸ متن اصلی:');
+        lines.push(restoreOriginal(chunk.text, job.glossaryMap)); // ← انگلیسی
+        lines.push('');
+        lines.push('▸ ترجمه:');
+        lines.push(chunk.status === 'done' ? restoreGlossary(chunk.translated, job.glossaryMap) : `[${chunk.status}]`);
+        lines.push('');
+      } else {
+        if (chunk.status === 'done') lines.push(restoreGlossary(chunk.translated, job.glossaryMap));
+      }
+    }
+    lines.push('');
   }
+  return lines.join('\n');
 }
 
-function downloadOutput() {
-  if (!state.currentJob) { toast('خروجی خالی', 'error'); return; }
-  const done = state.currentJob.chunks.filter(c => c.status === 'done');
-  if (!done.length) { toast('هنوز چیزی ترجمه نشده', 'error'); return; }
-
-  const map = state.currentJob.glossaryMap || [];
-  const txt = done.map(c => restoreGlossary(c.translated, map)).join('\n\n');
-
-  const base = (state.fileName || 'translation').replace(/\.pdf$/i, '');
+function downloadTxt() {
+  const job = state.currentJob;
+  if (!job) { toast('خروجی خالی', 'error'); return; }
+  const txt = buildPlainText(job);
+  if (!txt.trim()) { toast('چیزی ترجمه نشده', 'error'); return; }
+  const base = (job.fileName || 'translation').replace(/\.pdf$/i, '');
   const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url;
-  a.download = `tarjomeh-${base}-${done.length}of${state.currentJob.chunks.length}.txt`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  toast(`دانلود شد (${done.length} بخش)`, 'success');
+  a.href = URL.createObjectURL(blob);
+  a.download = `tarjomeh-${job.mode}-${base}.txt`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  toast('دانلود TXT موفق', 'success');
 }
 
-/* ============ ۱۸) راه‌اندازی pdf.js ============ */
+async function downloadHtml() {
+  const job = state.currentJob;
+  if (!job) { toast('خروجی خالی', 'error'); return; }
+  if (job.mode !== 'original') { toast('این گزینه فقط در حالت صفحهٔ اصلی', 'error'); return; }
+  toast('در حال ساخت HTML با تصاویر — چند لحظه صبر…');
+
+  const parts = [];
+  parts.push('<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8">');
+  parts.push(`<title>${escapeHtml(job.fileName)}</title>`);
+  parts.push('<style>body{font-family:Vazirmatn,system-ui,sans-serif;max-width:900px;margin:0 auto;padding:20px;line-height:1.9;background:#f1f5fb;color:#0f172a}h3{color:#1e40af;border-bottom:2px solid #c7d7ef;padding-bottom:6px;margin-top:36px}.page{background:#fff;border-radius:12px;padding:16px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,.08)}.page img{width:100%;display:block;border-radius:8px;border:1px solid #e5e7eb}.page .trans{margin-top:16px;padding:12px;background:#f0fdf4;border-radius:8px;color:#166534;text-align:justify;font-size:14px;white-space:pre-wrap;word-wrap:break-word}.note{text-align:center;color:#64748b;font-size:13px;margin:20px 0}</style>');
+  parts.push('</head><body>');
+  parts.push(`<h2 style="text-align:center">${escapeHtml(job.fileName)}</h2>`);
+  parts.push('<p class="note">ترجمهٔ دوزبانه — هر صفحه با تصویر اصلی و ترجمه در زیر</p>');
+
+  for (const page of job.pages) {
+    if (!page.chunks.length) continue;
+    parts.push(`<div class="page"><h3>صفحهٔ ${page.pageNum}</h3>`);
+    try {
+      const p = await state.pdf.getPage(page.pageNum);
+      const baseVp = p.getViewport({ scale: 1 });
+      const scale = Math.min(1.5, 900 / baseVp.width);
+      const vp = p.getViewport({ scale });
+      const canvas = document.createElement('canvas');
+      canvas.width = vp.width; canvas.height = vp.height;
+      await p.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      parts.push(`<img src="${dataUrl}" alt="صفحه ${page.pageNum}">`);
+    } catch (e) {
+      parts.push(`<p class="note">⚠️ تصویر صفحه رندر نشد</p>`);
+    }
+    const text = page.chunks
+      .filter(c => c.status === 'done')
+      .map(c => restoreGlossary(c.translated || '', job.glossaryMap))
+      .join(' ');
+    parts.push(`<div class="trans">${escapeHtml(text || '(ترجمه نشده)')}</div></div>`);
+  }
+  parts.push('</body></html>');
+
+  const base = (job.fileName || 'translation').replace(/\.pdf$/i, '');
+  const blob = new Blob([parts.join('\n')], { type: 'text/html;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `tarjomeh-${base}.html`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  toast('دانلود HTML موفق', 'success');
+}
+
+/* ---------- pdf.js worker ---------- */
 if (typeof pdfjsLib !== 'undefined') {
   pdfjsLib.GlobalWorkerOptions.workerSrc =
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
-
