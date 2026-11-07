@@ -1434,6 +1434,45 @@ async function downloadDocx() {
   }
 }
 
+async function extractPageStructured(pageNum) {
+  var page = await state.pdf.getPage(pageNum);
+  var content = await page.getTextContent();
+
+  var items = content.items.filter(function(it) {
+    return it.str && it.str.trim() && it.transform;
+  });
+
+  // گروهبندی بر اساس Y (با تلورانس ۴ پیکسل)
+  var rows = [];
+  for (var i = 0; i < items.length; i++) {
+    var y = items[i].transform[5];
+    var found = false;
+    for (var r = 0; r < rows.length; r++) {
+      if (Math.abs(rows[r].y - y) < 4) {
+        rows[r].items.push(items[i]);
+        found = true;
+        break;
+      }
+    }
+    if (!found) rows.push({ y: y, items: [items[i]] });
+  }
+
+  // مرتبسازی ردیفها از بالا به پایین
+  rows.sort(function(a, b) { return b.y - a.y; });
+
+  // ساخت متن از هر ردیف
+  var lines = [];
+  for (var ri = 0; ri < rows.length; ri++) {
+    var rowItems = rows[ri].items.slice();
+    // مرتبسازی بر اساس X (چپ به راست)
+    rowItems.sort(function(a, b) { return a.transform[4] - b.transform[4]; });
+    var lineText = rowItems.map(function(it) { return it.str; }).join(' ').trim();
+    if (lineText) lines.push(lineText);
+  }
+
+  return lines.join('\n');
+}
+
 async function downloadHtml() {
   var job = state.currentJob;
   if (!job) { toast('خروجی خالی', 'error'); return; }
