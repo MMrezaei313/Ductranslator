@@ -1,6 +1,5 @@
 'use strict';
 
-/* ================= CONFIG ================= */
 var APP = {
   USER: { username: 'mousa', password: 'tarjomeh' },
   SENTENCE_MAX: 400,
@@ -8,12 +7,11 @@ var APP = {
   MAX_CONCURRENCY: 3,
   DB_NAME: 'mousa_tx_db',
   STORE: 'jobs',
-  SETTINGS_KEY: 'mousa_settings_v3',
+  SETTINGS_KEY: 'mousa_settings_v4',
   USAGE_KEY: 'mousa_usage_v1',
   STYLE_KEY: 'mousa_display_style'
 };
 
-/* ================= GLOSSARIES ================= */
 var GLOSSARIES = {
   ceramic:{
     'sintering':'زینتر کردن','sintered':'زینترشده','densification':'چگالش',
@@ -87,6 +85,52 @@ var GLOSSARIES = {
   }
 };
 
+var GLOSSARY_EXAMPLES = {
+  ceramic:{
+    'sintering':{ en:'Sintering at 1500 °C increased density to 98%.', fa:'زینترینگ در ۱۵۰۰ درجه چگالی را به ۹۸٪ رساند.' },
+    'densification':{ en:'Liquid-phase sintering accelerates densification.', fa:'زینترینگ فاز مایع چگالش را تسریع می‌کند.' },
+    'porosity':{ en:'Open porosity was measured by water absorption.', fa:'تخلخل باز با روش جذب آب اندازه‌گیری شد.' },
+    'grain boundary':{ en:'Grain boundary diffusion controls the densification rate.', fa:'نفوذ مرز دانه نرخ چگالش را کنترل می‌کند.' },
+    'grain growth':{ en:'Excessive grain growth reduces fracture toughness.', fa:'رشد بیش‌ازحد دانه چقرمگی شکست را کاهش می‌دهد.' },
+    'microstructure':{ en:'SEM images revealed a homogeneous microstructure.', fa:'تصاویر SEM ریزساختار همگن را نشان دادند.' },
+    'alumina':{ en:'Alumina ceramics are used for wear-resistant parts.', fa:'سرامیک‌های آلومینا برای قطعات مقاوم به سایش استفاده می‌شوند.' },
+    'zirconia':{ en:'Zirconia exhibits transformation toughening.', fa:'زیرکونیا چقرمگی تبدیل فازی نشان می‌دهد.' },
+    'fracture toughness':{ en:'Fracture toughness of 4 MPa·m¹ᐟ² was obtained.', fa:'چقرمگی شکست ۴ مگاپاسکال در ریشهٔ متر به دست آمد.' },
+    'refractory':{ en:'Refractory materials withstand temperatures above 1500 °C.', fa:'مواد دیرگداز دمای بالای ۱۵۰۰ درجه را تحمل می‌کنند.' },
+    'thermal expansion':{ en:'Low thermal expansion improves thermal shock resistance.', fa:'انبساط حرارتی پایین مقاومت به شوک حرارتی را بهبود می‌دهد.' },
+    'phase transformation':{ en:'Tetragonal to monoclinic phase transformation causes volume change.', fa:'تبدیل فاز تتراگونال به مونوکلینیک تغییر حجم ایجاد می‌کند.' },
+    'calcination':{ en:'Calcination removes carbonates from the powder.', fa:'کلسیناسیون کربنات‌ها را از پودر حذف می‌کند.' }
+  },
+  physics:{
+    'energy':{ en:'Kinetic energy scales with the square of velocity.', fa:'انرژی جنبشی با مربع سرعت متناسب است.' },
+    'momentum':{ en:'Total momentum is conserved in elastic collisions.', fa:'تکانهٔ کل در برخوردهای کشسان پایسته است.' },
+    'quantum':{ en:'Quantum effects dominate at the nanometer scale.', fa:'اثرات کوانتومی در مقیاس نانومتر غالب می‌شوند.' },
+    'photon':{ en:'A photon carries energy proportional to its frequency.', fa:'فوتون انرژی متناسب با فرکانس خود حمل می‌کند.' },
+    'electron':{ en:'Electrons occupy discrete energy levels in atoms.', fa:'الکترون‌ها سطوح انرژی گسسته در اتم‌ها را اشغال می‌کنند.' },
+    'entropy':{ en:'Entropy increases in all spontaneous processes.', fa:'آنتروپی در همهٔ فرآیندهای خودبه‌خودی افزایش می‌یابد.' },
+    'wavelength':{ en:'Shorter wavelengths correspond to higher energies.', fa:'طول موج‌های کوتاه‌تر با انرژی‌های بالاتر مطابقت دارند.' },
+    'magnetic field':{ en:'The magnetic field strength was measured in tesla.', fa:'شدت میدان مغناطیسی بر حسب تسلا اندازه‌گیری شد.' }
+  },
+  chemistry:{
+    'catalyst':{ en:'The catalyst lowers the activation energy.', fa:'کاتالیزور انرژی فعال‌سازی را کاهش می‌دهد.' },
+    'oxidation':{ en:'Oxidation of metals produces protective oxide layers.', fa:'اکسایش فلزات لایه‌های اکسیدی محافظ تولید می‌کند.' },
+    'equilibrium':{ en:'Chemical equilibrium is dynamic, not static.', fa:'تعادل شیمیایی پویا است، نه ایستا.' },
+    'molecule':{ en:'Water is a polar molecule with a bent shape.', fa:'آب مولکولی قطبی با شکل خمیده است.' },
+    'polymer':{ en:'The polymer chains are cross-linked by UV light.', fa:'زنجیره‌های پلیمری با نور فرابنفش اتصال عرضی می‌یابند.' }
+  },
+  biology:{
+    'cell':{ en:'The cell membrane controls molecular transport.', fa:'غشای سلول انتقال مولکولی را کنترل می‌کند.' },
+    'protein':{ en:'Proteins fold into specific three-dimensional structures.', fa:'پروتئین‌ها به ساختارهای سه‌بعدی خاص تاخوردگی می‌یابند.' },
+    'gene':{ en:'Gene expression is regulated by transcription factors.', fa:'بیان ژن توسط فاکتورهای رونویسی تنظیم می‌شود.' },
+    'enzyme':{ en:'Enzymes act as biological catalysts.', fa:'آنزیم‌ها به‌عنوان کاتالیزورهای زیستی عمل می‌کنند.' }
+  },
+  general:{
+    'method':{ en:'The method was validated using three independent samples.', fa:'روش با سه نمونهٔ مستقل اعتبارسنجی شد.' },
+    'result':{ en:'The results indicate a significant improvement.', fa:'نتایج بهبود قابل توجهی را نشان می‌دهند.' },
+    'analysis':{ en:'Statistical analysis was performed using ANOVA.', fa:'تحلیل آماری با ANOVA انجام شد.' }
+  }
+};
+
 var DOMAIN_INFO = {
   ceramic:'🏺 سرامیک و مواد', physics:'⚛️ فیزیک', chemistry:'🧪 شیمی',
   biology:'🧬 زیست‌شناسی', general:'📄 عمومی'
@@ -101,17 +145,19 @@ var DOMAIN_KEYWORDS = {
 
 var MODE_DEFS = {
   pdf: [
-    { value:'bilingual', label:'📝 دوزبانه — جمله‌به‌جمله', hint:'هر جمله: انگلیسی و بلافاصله فارسی.', structure:'sentence' },
-    { value:'original',  label:'🖼 صفحهٔ اصلی + ترجمه', hint:'هر صفحه با عکس کامل و ترجمه در زیر.', structure:'page' },
-    { value:'text',      label:'📄 متن تمیز — پاراگرافی', hint:'پاراگراف‌های خوانا با ترجمه.', structure:'paragraph' }
+    { value:'sidebyside', label:'📖 افقی — عکس چپ | ترجمه راست', structure:'sidebyside', hint:'هر صفحه به‌صورت افقی: عکس کامل صفحه (شامل جدول و تصویر) در چپ، ترجمهٔ فارسی در راست.' },
+    { value:'bilingual',  label:'📝 دوزبانه — جمله‌به‌جمله', structure:'sentence', hint:'هر جمله: انگلیسی و بلافاصله فارسی.' },
+    { value:'original',   label:'🖼 عکس کامل صفحه + ترجمهٔ زیر', structure:'page', hint:'هر صفحه با عکس کامل و ترجمهٔ فارسی زیرش.' },
+    { value:'text',       label:'📄 متن تمیز دوزبانه', structure:'paragraph', hint:'پاراگراف‌های خوانا با ترجمه — بدون عکس.' },
+    { value:'textonly',   label:'🌐 فقط ترجمهٔ فارسی', structure:'paragraph', hint:'فقط ترجمهٔ فارسی، بدون متن اصلی.' }
   ],
   docx: [
-    { value:'text',     label:'📄 دوزبانه — پاراگراف + ترجمه', hint:'هر پاراگراف انگلیسی و ترجمه زیرش.', structure:'paragraph' },
-    { value:'textonly', label:'📄 فقط ترجمه', hint:'فقط ترجمهٔ فارسی.', structure:'paragraph' }
+    { value:'text',       label:'📄 دوزبانه — پاراگراف + ترجمه', structure:'paragraph', hint:'هر پاراگراف انگلیسی و ترجمهٔ فارسی زیرش.' },
+    { value:'sidebyside', label:'📖 دو ستونی — کنار هم', structure:'paragraph', layout:'sidebyside', hint:'هر پاراگراف انگلیسی در چپ و ترجمه در راست.' },
+    { value:'textonly',   label:'🌐 فقط ترجمه', structure:'paragraph', hint:'فقط ترجمهٔ فارسی.' }
   ]
 };
 
-/* ================= STATE ================= */
 var state = {
   sourceType: 'pdf',
   file: null, fileName: '', fileSize: 0, fileHash: '',
@@ -122,20 +168,10 @@ var state = {
   settings: { mmEmail: '', deeplKey: '' }
 };
 
-/* ================= UTILS ================= */
-function $(sel) {
-  return document.querySelector(sel);
-}
-function sleep(ms) {
-  return new Promise(function(r){ setTimeout(r, ms); });
-}
-function escapeRe(s) {
-  if (!s) return '';
-  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-function escapeHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
+function $(sel) { return document.querySelector(sel); }
+function sleep(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
+function escapeRe(s) { return s ? s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : ''; }
+function escapeHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 var toastTimer = null;
 function toast(msg, type) {
@@ -147,11 +183,11 @@ function toast(msg, type) {
   toastTimer = setTimeout(function(){ el.className = 'toast ' + (type || ''); }, 3200);
 }
 
-/* ================= INDEXEDDB ================= */
+/* ===== IndexedDB ===== */
 function openDB() {
   return new Promise(function(resolve, reject){
     var req = indexedDB.open(APP.DB_NAME, 1);
-    req.onupgradeneeded = function(e) {
+    req.onupgradeneeded = function(e){
       var db = e.target.result;
       if (!db.objectStoreNames.contains(APP.STORE)) {
         db.createObjectStore(APP.STORE, { keyPath: 'hash' });
@@ -188,7 +224,7 @@ async function dbDelete(hash) {
   });
 }
 
-/* ================= USAGE ================= */
+/* ===== usage ===== */
 function loadUsage() {
   try { return JSON.parse(localStorage.getItem(APP.USAGE_KEY) || '{}'); }
   catch (e) { return {}; }
@@ -220,13 +256,10 @@ function updateUsageStatus() {
   el.textContent = '📊 ' + (parts.join(' · ') || '—');
 }
 
-/* ================= LOGIN ================= */
+/* ===== login ===== */
 function bindLogin() {
   var form = $('#loginForm');
-  if (!form) {
-    console.error('loginForm not found');
-    return;
-  }
+  if (!form) return;
   form.addEventListener('submit', function(e){
     e.preventDefault();
     e.stopPropagation();
@@ -235,10 +268,7 @@ function bindLogin() {
     if (u === APP.USER.username && p === APP.USER.password) {
       $('#loginScreen').classList.add('hidden');
       $('#app').classList.remove('hidden');
-      if (!window._initDone) {
-        window._initDone = true;
-        initApp();
-      }
+      if (!window._initDone) { window._initDone = true; initApp(); }
       toast('خوش آمدید موسی 👋', 'success');
     } else {
       $('#loginError').classList.remove('hidden');
@@ -246,23 +276,19 @@ function bindLogin() {
       $('#password').focus();
     }
   });
-
   var logoutBtn = $('#logoutBtn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', function(){
-      if (state.running && !confirm('ترجمه در حال اجراست. پیشرفت ذخیره می‌شود. خارج شویم؟')) return;
-      location.reload();
-    });
-  }
+  if (logoutBtn) logoutBtn.addEventListener('click', function(){
+    if (state.running && !confirm('ترجمه در حال اجراست. پیشرفت ذخیره می‌شود. خارج شویم؟')) return;
+    location.reload();
+  });
 }
 
-/* ================= INIT ================= */
+/* ===== init ===== */
 function initApp() {
   try {
     var s = JSON.parse(localStorage.getItem(APP.SETTINGS_KEY) || '{}');
     Object.assign(state.settings, s);
   } catch (e) {}
-
   if ($('#mmEmail')) $('#mmEmail').value = state.settings.mmEmail || '';
   if ($('#deeplKey')) $('#deeplKey').value = state.settings.deeplKey || '';
 
@@ -285,9 +311,7 @@ function initApp() {
     if (el) el.addEventListener(ev, fn);
   }
 
-  on('fileInput', 'change', function(e){
-    if (e.target.files && e.target.files[0]) loadFile(e.target.files[0]);
-  });
+  on('fileInput', 'change', function(e){ if (e.target.files && e.target.files[0]) loadFile(e.target.files[0]); });
   on('domainSelect', 'change', updateGlossary);
   on('glossaryViewSelect', 'change', updateGlossary);
   on('modeSelect', 'change', onModeChange);
@@ -304,6 +328,24 @@ function initApp() {
   on('closeSettings', 'click', function(){ $('#settingsModal').classList.add('hidden'); });
   on('saveSettings', 'click', saveSettings);
 
+  // Range preset buttons
+  document.querySelectorAll('.preset-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var preset = btn.dataset.preset;
+      var from = 1, to = 5;
+      if (preset === 'all') to = state.pageCount || 1;
+      else to = Math.min(parseInt(preset, 10) || 5, state.pageCount || 5);
+      if ($('#fromPage')) $('#fromPage').value = from;
+      if ($('#toPage')) $('#toPage').value = to;
+      document.querySelectorAll('.preset-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      updateRangeInfo();
+    });
+  });
+
+  on('fromPage', 'input', updateRangeInfo);
+  on('toPage', 'input', updateRangeInfo);
+
   document.querySelectorAll('.style-btn').forEach(function(btn){
     btn.addEventListener('click', function(){ setDisplayStyle(btn.dataset.style); });
   });
@@ -316,6 +358,19 @@ function initApp() {
   updateOnlineStatus();
   updateGlossary();
   updateUsageStatus();
+}
+
+function updateRangeInfo() {
+  var from = parseInt($('#fromPage').value, 10);
+  var to = parseInt($('#toPage').value, 10);
+  var el = $('#rangeInfo');
+  if (!el) return;
+  if (isNaN(from) || isNaN(to)) {
+    el.textContent = 'عدد صفحه را وارد کنید';
+    return;
+  }
+  var count = Math.max(0, to - from + 1);
+  el.textContent = '📄 از صفحهٔ ' + from + ' تا ' + to + ' — ' + count + ' صفحه (کل کتاب: ' + state.pageCount + ')';
 }
 
 function saveSettings() {
@@ -354,10 +409,15 @@ function onModeChange() {
 
   var isParagraph = def && def.structure === 'paragraph';
   var toggleBtn = $('#toggleOriginalBtn');
-  if (toggleBtn) toggleBtn.classList.toggle('hidden', !isParagraph || mode === 'textonly');
+  if (toggleBtn) toggleBtn.classList.toggle('hidden', !isParagraph && mode !== 'sidebyside' && mode !== 'original');
 
   var pageRange = $('#pageRangeRow');
   if (pageRange) pageRange.classList.toggle('hidden', state.sourceType === 'docx');
+
+  var htmlBtn = $('#downloadHtmlBtn');
+  if (htmlBtn) htmlBtn.classList.toggle('hidden', mode !== 'original' && mode !== 'sidebyside');
+  var docxBtn = $('#downloadDocxBtn');
+  if (docxBtn) docxBtn.classList.toggle('hidden', !isParagraph || mode === 'textonly');
 }
 function toggleOriginal() {
   var out = $('#output');
@@ -365,7 +425,7 @@ function toggleOriginal() {
   $('#toggleOriginalBtn').textContent = isHidden ? '👁 نمایش اصل' : '👁 پنهان اصل';
 }
 
-/* ================= ONLINE / WAKE ================= */
+/* ===== online / wake ===== */
 function updateOnlineStatus() {
   var el = $('#onlineStatus');
   if (!el) return;
@@ -398,7 +458,7 @@ async function onWakeLockBtn() {
   else await requestWakeLock();
 }
 
-/* ================= FILE ================= */
+/* ===== file ===== */
 function detectFileType(file) {
   var n = file.name.toLowerCase();
   if (n.indexOf('.pdf') !== -1 || file.type === 'application/pdf') return 'pdf';
@@ -439,9 +499,10 @@ async function loadFile(file) {
     }
 
     if (type === 'pdf') {
-      $('#toPage').value = Math.min(3, state.pageCount);
+      $('#toPage').value = Math.min(5, state.pageCount);
       $('#toPage').max = state.pageCount;
       $('#fromPage').max = state.pageCount;
+      updateRangeInfo();
     }
 
     var sample = await getSampleText();
@@ -547,16 +608,50 @@ function detectDomain(text) {
   return max >= 3 ? best : 'general';
 }
 
-/* ================= GLOSSARY ================= */
+/* ===== glossary ===== */
 function updateGlossary() {
   var d = $('#glossaryViewSelect').value;
   var g = GLOSSARIES[d] || {};
+  var ex = GLOSSARY_EXAMPLES[d] || {};
   var keys = Object.keys(g);
-  var rows = keys.map(function(en){
-    return '<div class="g-row"><span class="g-en" dir="ltr">' + escapeHtml(en) +
-      '</span><span class="g-fa">' + escapeHtml(g[en]) + '</span></div>';
-  }).join('');
-  $('#glossaryTable').innerHTML = rows || '<p class="muted" style="padding:12px">موردی نیست</p>';
+  if (!keys.length) {
+    $('#glossaryTable').innerHTML = '<p class="muted" style="padding:12px">موردی نیست</p>';
+    return;
+  }
+  var html = '';
+  for (var i = 0; i < keys.length; i++) {
+    var en = keys[i];
+    var fa = g[en];
+    var example = ex[en];
+    var hasEx = !!example;
+    html += '<div class="g-item" data-en="' + escapeHtml(en) + '">';
+    html += '<div class="g-header">';
+    html += '<span class="g-en">' + escapeHtml(en) + '</span>';
+    html += '<span class="g-fa">' + escapeHtml(fa) + '</span>';
+    html += '<span class="g-icon">' + (hasEx ? '▸' : '·') + '</span>';
+    html += '</div>';
+    if (hasEx) {
+      html += '<div class="g-example hidden">';
+      html += '<div class="g-ex-en">' + escapeHtml(example.en) + '</div>';
+      html += '<div class="g-ex-fa">' + escapeHtml(example.fa) + '</div>';
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  $('#glossaryTable').innerHTML = html;
+
+  var items = $('#glossaryTable').querySelectorAll('.g-item');
+  for (var j = 0; j < items.length; j++) {
+    var header = items[j].querySelector('.g-header');
+    if (!header) continue;
+    header.addEventListener('click', function(){
+      var item = this.parentElement;
+      var exampleEl = item.querySelector('.g-example');
+      if (!exampleEl) return;
+      item.classList.toggle('open');
+      exampleEl.classList.toggle('hidden');
+    });
+  }
 }
 
 function protectGlossary(text, glossary, map) {
@@ -597,14 +692,13 @@ function restoreOriginal(text, map) {
   });
 }
 
-/* ================= CHUNKING ================= */
+/* ===== chunking ===== */
 var ABBREVIATIONS = ['Fig','Eq','e.g','i.e','vs','Dr','Mr','Ms','Mrs','Prof','Inc','Ltd','Co','No','Vol','pp','cf'];
 
 function protectAbbrev(text) {
   var out = text;
   for (var i = 0; i < ABBREVIATIONS.length; i++) {
-    var ab = ABBREVIATIONS[i];
-    var re = new RegExp('\\b' + escapeRe(ab) + '\\.', 'g');
+    var re = new RegExp('\\b' + escapeRe(ABBREVIATIONS[i]) + '\\.', 'g');
     out = out.replace(re, function(m){ return m.replace(/\./g, '§'); });
   }
   return out;
@@ -638,26 +732,20 @@ function chunkByParagraph(text, maxLen) {
   var cur = '';
   for (var i = 0; i < sentences.length; i++) {
     var s = sentences[i];
-    if ((cur + ' ' + s).trim().length > maxLen && cur) {
-      chunks.push(cur);
-      cur = s;
-    } else {
-      cur = cur ? cur + ' ' + s : s;
-    }
+    if ((cur + ' ' + s).trim().length > maxLen && cur) { chunks.push(cur); cur = s; }
+    else { cur = cur ? cur + ' ' + s : s; }
   }
   if (cur.trim()) chunks.push(cur);
   return chunks;
 }
 
-/* ================= SERVICES ================= */
+/* ===== services ===== */
 function extractGoogleText(data) {
   if (!data) throw new Error('پاسخ خالی');
   if (typeof data === 'string') return data;
   if (!Array.isArray(data)) throw new Error('پاسخ نامعتبر');
-
   var first = data[0];
   if (typeof first === 'string') return first;
-
   if (Array.isArray(first) && first.length > 0) {
     if (typeof first[0] === 'string') {
       return first.map(function(seg){
@@ -667,42 +755,32 @@ function extractGoogleText(data) {
       }).join('');
     }
     if (Array.isArray(first[0]) && typeof first[0][0] === 'string') {
-      return first.map(function(seg){
-        return Array.isArray(seg) ? seg[0] : '';
-      }).join('');
+      return first.map(function(seg){ return Array.isArray(seg) ? seg[0] : ''; }).join('');
     }
   }
-  throw new Error('فرمت پاسخ نامشخص');
+  throw new Error('فرمت نامشخص');
 }
-
 async function googleClients5(text) {
   var url = 'https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=en&tl=fa&q=' +
     encodeURIComponent(text);
   var res = await fetch(url);
   if (!res.ok) throw new Error('clients5 ' + res.status);
-  var data = await res.json();
-  return extractGoogleText(data);
+  return extractGoogleText(await res.json());
 }
-
 async function googleClassic(text) {
   var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=fa&dt=t&q=' +
     encodeURIComponent(text);
   var res = await fetch(url);
   if (!res.ok) throw new Error('googleapis ' + res.status);
-  var data = await res.json();
-  return extractGoogleText(data);
+  return extractGoogleText(await res.json());
 }
-
 async function googleViaProxy(text) {
   var inner = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=fa&dt=t&q=' +
     encodeURIComponent(text);
-  var url = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(inner);
-  var res = await fetch(url);
+  var res = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(inner));
   if (!res.ok) throw new Error('proxy ' + res.status);
-  var data = await res.json();
-  return extractGoogleText(data);
+  return extractGoogleText(await res.json());
 }
-
 async function myMemory(text) {
   var parts = chunkBySentence(text, 450);
   var out = '';
@@ -713,23 +791,19 @@ async function myMemory(text) {
     var res = await fetch(url);
     if (!res.ok) throw new Error('MyMemory ' + res.status);
     var data = await res.json();
-    if (Number(data.responseStatus) !== 200) {
-      throw new Error('MyMemory: ' + (data.responseDetails || 'quota'));
-    }
+    if (Number(data.responseStatus) !== 200) throw new Error('MyMemory: ' + (data.responseDetails || 'quota'));
     out += data.responseData.translatedText + ' ';
     await sleep(150);
   }
   trackUsage('mymemory', text.length);
   return out.trim();
 }
-
 async function libreTranslate(text) {
   var instances = ['https://translate.terraprint.co', 'https://libretranslate.de'];
   for (var i = 0; i < instances.length; i++) {
     try {
       var res = await fetch(instances[i] + '/translate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ q: text, source: 'en', target: 'fa', format: 'text' })
       });
       if (res.ok) {
@@ -740,7 +814,6 @@ async function libreTranslate(text) {
   }
   throw new Error('LibreTranslate ناموفق');
 }
-
 async function deeplTranslate(text) {
   if (!state.settings.deeplKey) throw new Error('کلید DeepL نیست');
   var isFree = state.settings.deeplKey.endsWith(':fx');
@@ -762,14 +835,12 @@ async function deeplTranslate(text) {
 async function translateWithFallback(text) {
   var errors = [];
   var chain = [];
-
   if (state.settings.deeplKey) chain.push({ name: 'DeepL', fn: deeplTranslate });
   chain.push({ name: 'Google5', fn: googleClients5 });
   chain.push({ name: 'Google', fn: googleClassic });
   chain.push({ name: 'Proxy', fn: googleViaProxy });
   chain.push({ name: 'MyMemory', fn: myMemory });
   chain.push({ name: 'Libre', fn: libreTranslate });
-
   for (var i = 0; i < chain.length; i++) {
     try {
       var result = await chain[i].fn(text);
@@ -788,7 +859,7 @@ async function translateWithFallback(text) {
   throw new Error(errors.join(' | '));
 }
 
-/* ================= COUNTERS ================= */
+/* ===== counters ===== */
 function countDone(job) {
   var n = 0;
   for (var i = 0; i < job.pages.length; i++) {
@@ -804,7 +875,7 @@ function countTotal(job) {
   return n;
 }
 
-/* ================= MAIN FLOW ================= */
+/* ===== main ===== */
 async function startTranslation() {
   if (!state.file) { toast('ابتدا فایل را انتخاب کنید', 'error'); return; }
   if (state.running) return;
@@ -814,12 +885,20 @@ async function startTranslation() {
   var def = null;
   for (var i = 0; i < defs.length; i++) { if (defs[i].value === mode) { def = defs[i]; break; } }
   var structure = (def && def.structure) || 'sentence';
+  var layout = (def && def.layout) || null;
 
   var from = 1, to = 1;
   if (state.sourceType === 'pdf') {
-    from = Math.max(1, parseInt($('#fromPage').value, 10) || 1);
-    to = Math.min(state.pageCount, parseInt($('#toPage').value, 10) || 1);
-    if (from > to) { toast('محدوده معتبر نیست', 'error'); return; }
+    var fromInput = ($('#fromPage').value || '').trim();
+    var toInput = ($('#toPage').value || '').trim();
+    if (!fromInput || !toInput) { toast('فیلد صفحه را پر کنید', 'error'); return; }
+    from = parseInt(fromInput, 10);
+    to = parseInt(toInput, 10);
+    if (isNaN(from) || isNaN(to) || from < 1 || to < 1) {
+      toast('عدد صفحه معتبر وارد کنید', 'error'); return;
+    }
+    if (from > to) { toast('«از صفحه» باید کوچک‌تر از «تا صفحه» باشد', 'error'); return; }
+    if (to > state.pageCount) { to = state.pageCount; $('#toPage').value = to; }
   }
 
   state.running = true;
@@ -829,8 +908,11 @@ async function startTranslation() {
   $('#progressWrap').classList.remove('hidden');
   $('#outputCard').classList.remove('hidden');
   $('#clearJobBtn').classList.add('hidden');
-  $('#downloadDocxBtn').classList.toggle('hidden', structure !== 'paragraph');
-  $('#downloadHtmlBtn').classList.toggle('hidden', mode !== 'original');
+
+  var htmlBtn = $('#downloadHtmlBtn');
+  if (htmlBtn) htmlBtn.classList.toggle('hidden', mode !== 'original' && mode !== 'sidebyside');
+  var docxBtn = $('#downloadDocxBtn');
+  if (docxBtn) docxBtn.classList.toggle('hidden', structure !== 'paragraph' || mode === 'textonly');
 
   try {
     var job = await dbGet(state.fileHash);
@@ -849,22 +931,18 @@ async function startTranslation() {
     if (job) {
       var done0 = countDone(job);
       var total0 = countTotal(job);
-      if (total0 === 0) {
-        await dbDelete(state.fileHash);
-        job = null;
-      } else if (done0 === total0) {
+      if (total0 === 0) { await dbDelete(state.fileHash); job = null; }
+      else if (done0 === total0) {
         if (!confirm('قبلاً کامل ترجمه شده. از نو؟')) {
           state.currentJob = job;
           renderOutput(job);
           updateProgressUI(job);
           return;
         }
-        await dbDelete(state.fileHash);
-        job = null;
+        await dbDelete(state.fileHash); job = null;
       } else if (done0 > 0) {
         if (!confirm(done0 + '/' + total0 + ' قبلاً ترجمه شده. ادامه؟\n\n«لغو» = از نو')) {
-          await dbDelete(state.fileHash);
-          job = null;
+          await dbDelete(state.fileHash); job = null;
         }
       }
     }
@@ -886,14 +964,11 @@ async function startTranslation() {
             : chunkByParagraph(protectedText);
           var chunkArr = [];
           for (var k = 0; k < parts.length; k++) {
-            chunkArr.push({
-              id: p + '-' + k, text: parts[k], translated: null, status: 'pending', tag: 'p'
-            });
+            chunkArr.push({ id: p + '-' + k, text: parts[k], translated: null, status: 'pending', tag: 'p' });
           }
           pages.push({ pageNum: p, chunks: chunkArr });
           if ((p - from) % 5 === 0) {
-            setProgress(Math.min(5, Math.round(((p - from + 1) / (to - from + 1)) * 5)),
-              'استخراج صفحهٔ ' + p + '...');
+            setProgress(Math.min(5, Math.round(((p - from + 1) / (to - from + 1)) * 5)), 'استخراج صفحهٔ ' + p + '...');
           }
         }
       } else {
@@ -901,10 +976,7 @@ async function startTranslation() {
         var chunks = [];
         for (var q = 0; q < paras.length; q++) {
           var prot = protectGlossary(paras[q].text, glossary, glossaryMap);
-          chunks.push({
-            id: 'p-' + q, tag: paras[q].tag,
-            text: prot, translated: null, status: 'pending'
-          });
+          chunks.push({ id: 'p-' + q, tag: paras[q].tag, text: prot, translated: null, status: 'pending' });
         }
         pages.push({ pageNum: 1, chunks: chunks });
       }
@@ -912,7 +984,7 @@ async function startTranslation() {
       job = {
         hash: state.fileHash, fileName: state.fileName,
         sourceType: state.sourceType, pageCount: state.pageCount,
-        from: from, to: to, mode: mode, structure: structure,
+        from: from, to: to, mode: mode, structure: structure, layout: layout,
         displayStyle: state.displayStyle,
         domain: $('#domainSelect').value,
         glossaryMap: glossaryMap, pages: pages,
@@ -924,9 +996,7 @@ async function startTranslation() {
 
     for (var pi = 0; pi < job.pages.length; pi++) {
       for (var ci = 0; ci < job.pages[pi].chunks.length; ci++) {
-        if (job.pages[pi].chunks[ci].status === 'translating') {
-          job.pages[pi].chunks[ci].status = 'pending';
-        }
+        if (job.pages[pi].chunks[ci].status === 'translating') job.pages[pi].chunks[ci].status = 'pending';
       }
     }
     await dbPut(job);
@@ -940,18 +1010,14 @@ async function startTranslation() {
     updateProgressUI(job);
 
     if (!state.wakeLock) requestWakeLock();
-
     await runWorkers(job);
 
-    if (state.cancelled) {
-      toast('لغو شد (پیشرفت ذخیره شده)', 'error');
-    } else {
+    if (state.cancelled) toast('لغو شد (پیشرفت ذخیره شده)', 'error');
+    else {
       var failed = 0;
-      for (var fpi = 0; fpi < job.pages.length; fpi++) {
-        for (var fci = 0; fci < job.pages[fpi].chunks.length; fci++) {
+      for (var fpi = 0; fpi < job.pages.length; fpi++)
+        for (var fci = 0; fci < job.pages[fpi].chunks.length; fci++)
           if (job.pages[fpi].chunks[fci].status === 'failed') failed++;
-        }
-      }
       toast(failed ? 'پایان با ' + failed + ' خطا' : '✅ ترجمه کامل شد', failed ? 'error' : 'success');
     }
   } catch (e) {
@@ -975,13 +1041,10 @@ async function runWorkers(job) {
       updateProgressUI(job);
     }
   }
-
   var queue = [];
-  for (var i = 0; i < job.pages.length; i++) {
-    for (var j = 0; j < job.pages[i].chunks.length; j++) {
+  for (var i = 0; i < job.pages.length; i++)
+    for (var j = 0; j < job.pages[i].chunks.length; j++)
       if (job.pages[i].chunks[j].status === 'pending') queue.push(job.pages[i].chunks[j]);
-    }
-  }
 
   async function worker() {
     while (queue.length > 0) {
@@ -1004,7 +1067,6 @@ async function runWorkers(job) {
       scheduleRender();
     }
   }
-
   var workers = [];
   for (var w = 0; w < APP.MAX_CONCURRENCY; w++) workers.push(worker());
   await Promise.all(workers);
@@ -1028,13 +1090,12 @@ function waitForOnline() {
   });
 }
 
-/* ================= RENDER ================= */
+/* ===== render ===== */
 function renderOutput(job) {
   if (!job) return;
   var output = $('#output');
   var style = (job.structure === 'sentence')
-    ? (state.displayStyle || job.displayStyle || 'columns')
-    : job.structure;
+    ? (state.displayStyle || job.displayStyle || 'columns') : job.structure;
 
   var needsRebuild =
     output.dataset.hash !== job.hash ||
@@ -1046,6 +1107,9 @@ function renderOutput(job) {
     output.dataset.hash = job.hash;
     output.dataset.mode = job.mode + ':' + style;
 
+    if (job.mode === 'textonly') output.classList.add('hide-originals');
+    else output.classList.remove('hide-originals');
+
     if (job.structure === 'sentence') {
       for (var i = 0; i < job.pages.length; i++) {
         var page = job.pages[i];
@@ -1055,23 +1119,30 @@ function renderOutput(job) {
           output.appendChild(buildSentencePair(page.chunks[j], job.glossaryMap, style));
         }
       }
-    } else if (job.structure === 'page') {
+    } else if (job.structure === 'sidebyside') {
       setupPageObserver();
       for (var pi = 0; pi < job.pages.length; pi++) {
         var pg = job.pages[pi];
         if (!pg.chunks.length) continue;
-        var card = buildPageCard(pg, job.glossaryMap);
+        var card = buildSideBySideCard(pg, job.glossaryMap);
         output.appendChild(card);
         if (pageObserver) pageObserver.observe(card);
       }
+    } else if (job.structure === 'page') {
+      setupPageObserver();
+      for (var pj = 0; pj < job.pages.length; pj++) {
+        var pg2 = job.pages[pj];
+        if (!pg2.chunks.length) continue;
+        var card2 = buildPageCard(pg2, job.glossaryMap);
+        output.appendChild(card2);
+        if (pageObserver) pageObserver.observe(card2);
+      }
     } else {
-      if (job.mode === 'textonly') output.classList.add('hide-originals');
-      else output.classList.remove('hide-originals');
       var wrap = document.createElement('div');
       wrap.className = 'paragraphs-container';
       for (var pp = 0; pp < job.pages.length; pp++) {
         for (var cc = 0; cc < job.pages[pp].chunks.length; cc++) {
-          wrap.appendChild(buildParagraphCard(job.pages[pp].chunks[cc], job.glossaryMap));
+          wrap.appendChild(buildParagraphCard(job.pages[pp].chunks[cc], job.glossaryMap, job.layout));
         }
       }
       output.appendChild(wrap);
@@ -1085,13 +1156,17 @@ function renderOutput(job) {
           if (sel) updateFa(sel, schunk, job.glossaryMap);
         }
       }
-    } else if (job.structure === 'page') {
+    } else if (job.structure === 'sidebyside' || job.structure === 'page') {
       for (var pgi = 0; pgi < job.pages.length; pgi++) {
-        var pg2 = job.pages[pgi];
-        var card2 = output.querySelector('.page-card[data-page="' + pg2.pageNum + '"]');
-        if (!card2) continue;
-        var trans2 = card2.querySelector('.page-translation');
-        if (trans2) updatePageTranslation(trans2, pg2, job.glossaryMap);
+        var pg3 = job.pages[pgi];
+        var cardSel = job.structure === 'sidebyside'
+          ? '.sidebyside-card[data-page="' + pg3.pageNum + '"]'
+          : '.page-card[data-page="' + pg3.pageNum + '"]';
+        var card3 = output.querySelector(cardSel);
+        if (!card3) continue;
+        var transSel = job.structure === 'sidebyside' ? '.ss-translation' : '.page-translation';
+        var trans3 = card3.querySelector(transSel);
+        if (trans3) updatePageTranslation(trans3, pg3, job.glossaryMap);
       }
     } else {
       for (var pi2 = 0; pi2 < job.pages.length; pi2++) {
@@ -1112,39 +1187,29 @@ function pageMarker(num) {
   return el;
 }
 
-function buildSentencePair(chunk, map, style) {
-  var wrap = document.createElement('div');
-  wrap.className = 'sentence-pair ' + style;
-  wrap.dataset.chunkId = chunk.id;
+function buildSideBySideCard(page, map) {
+  var card = document.createElement('div');
+  card.className = 'sidebyside-card';
+  card.dataset.page = page.pageNum;
 
-  var en = document.createElement('div');
-  en.className = 's-en';
-  en.dir = 'ltr';
-  en.textContent = restoreOriginal(chunk.text, map);
-  wrap.appendChild(en);
+  var left = document.createElement('div');
+  left.className = 'ss-left';
+  left.appendChild(pageMarker(page.pageNum));
+  var canvas = document.createElement('canvas');
+  canvas.className = 'page-canvas';
+  left.appendChild(canvas);
+  card.appendChild(left);
 
-  var fa = document.createElement('div');
-  fa.className = 's-fa';
-  fa.dir = 'rtl';
-  updateFa(fa, chunk, map);
-  wrap.appendChild(fa);
-  return wrap;
-}
+  var right = document.createElement('div');
+  right.className = 'ss-right';
+  var trans = document.createElement('div');
+  trans.className = 'ss-translation';
+  trans.dir = 'rtl';
+  updatePageTranslation(trans, page, map);
+  right.appendChild(trans);
+  card.appendChild(right);
 
-function updateFa(el, chunk, map) {
-  el.classList.remove('error', 'pending');
-  if (chunk.status === 'done') {
-    el.textContent = restoreGlossary(chunk.translated, map);
-  } else if (chunk.status === 'failed') {
-    el.textContent = '⚠️ ' + (chunk.error || 'خطا');
-    el.classList.add('error');
-  } else if (chunk.status === 'translating') {
-    el.textContent = '⏳ در حال ترجمه…';
-    el.classList.add('pending');
-  } else {
-    el.textContent = '⏸ در انتظار';
-    el.classList.add('pending');
-  }
+  return card;
 }
 
 function buildPageCard(page, map) {
@@ -1152,11 +1217,9 @@ function buildPageCard(page, map) {
   card.className = 'page-card';
   card.dataset.page = page.pageNum;
   card.appendChild(pageMarker(page.pageNum));
-
   var canvas = document.createElement('canvas');
   canvas.className = 'page-canvas';
   card.appendChild(canvas);
-
   var trans = document.createElement('div');
   trans.className = 'page-translation';
   trans.dir = 'rtl';
@@ -1173,9 +1236,7 @@ function updatePageTranslation(el, page, map) {
   }
   if (allDone) {
     var parts = [];
-    for (var k = 0; k < page.chunks.length; k++) {
-      parts.push(restoreGlossary(page.chunks[k].translated || '', map));
-    }
+    for (var k = 0; k < page.chunks.length; k++) parts.push(restoreGlossary(page.chunks[k].translated || '', map));
     el.textContent = parts.join(' ');
     return;
   }
@@ -1184,26 +1245,44 @@ function updatePageTranslation(el, page, map) {
     if (page.chunks[m].status === 'done') done++;
     if (page.chunks[m].status === 'failed') failed++;
   }
-  if (done === 0 && failed === 0) {
-    el.textContent = '⏳ در انتظار ترجمه…';
-  } else {
-    el.textContent = '⏳ ' + done + '/' + page.chunks.length + ' ترجمه شده' +
-      (failed ? ' (' + failed + ' خطا)' : '');
-  }
+  if (done === 0 && failed === 0) el.textContent = '⏳ در انتظار ترجمه…';
+  else el.textContent = '⏳ ' + done + '/' + page.chunks.length + ' ترجمه شده' + (failed ? ' (' + failed + ' خطا)' : '');
 }
 
-function buildParagraphCard(chunk, map) {
+function buildSentencePair(chunk, map, style) {
+  var wrap = document.createElement('div');
+  wrap.className = 'sentence-pair ' + style;
+  wrap.dataset.chunkId = chunk.id;
+  var en = document.createElement('div');
+  en.className = 's-en';
+  en.dir = 'ltr';
+  en.textContent = restoreOriginal(chunk.text, map);
+  wrap.appendChild(en);
+  var fa = document.createElement('div');
+  fa.className = 's-fa';
+  fa.dir = 'rtl';
+  updateFa(fa, chunk, map);
+  wrap.appendChild(fa);
+  return wrap;
+}
+function updateFa(el, chunk, map) {
+  el.classList.remove('error', 'pending');
+  if (chunk.status === 'done') el.textContent = restoreGlossary(chunk.translated, map);
+  else if (chunk.status === 'failed') { el.textContent = '⚠️ ' + (chunk.error || 'خطا'); el.classList.add('error'); }
+  else if (chunk.status === 'translating') { el.textContent = '⏳ در حال ترجمه…'; el.classList.add('pending'); }
+  else { el.textContent = '⏸ در انتظار'; el.classList.add('pending'); }
+}
+
+function buildParagraphCard(chunk, map, layout) {
   var card = document.createElement('div');
-  card.className = 'paragraph-card';
+  card.className = 'paragraph-card' + (layout === 'sidebyside' ? ' sidebyside' : '');
   card.dataset.chunkId = chunk.id;
   card.dataset.tag = chunk.tag || 'p';
-
   var orig = document.createElement('div');
   orig.className = 'dp-original';
   orig.dir = 'ltr';
   orig.textContent = restoreOriginal(chunk.text, map);
   card.appendChild(orig);
-
   var trans = document.createElement('div');
   trans.className = 'dp-translation';
   trans.dir = 'rtl';
@@ -1211,37 +1290,25 @@ function buildParagraphCard(chunk, map) {
   card.appendChild(trans);
   return card;
 }
-
 function updateParagraphTranslation(el, chunk, map) {
   el.classList.remove('error', 'pending');
-  if (chunk.status === 'done') {
-    el.textContent = restoreGlossary(chunk.translated, map);
-  } else if (chunk.status === 'failed') {
-    el.textContent = '⚠️ ' + (chunk.error || 'خطا');
-    el.classList.add('error');
-  } else if (chunk.status === 'translating') {
-    el.textContent = '⏳ در حال ترجمه…';
-    el.classList.add('pending');
-  } else {
-    el.textContent = '⏸ در انتظار';
-    el.classList.add('pending');
-  }
+  if (chunk.status === 'done') el.textContent = restoreGlossary(chunk.translated, map);
+  else if (chunk.status === 'failed') { el.textContent = '⚠️ ' + (chunk.error || 'خطا'); el.classList.add('error'); }
+  else if (chunk.status === 'translating') { el.textContent = '⏳ در حال ترجمه…'; el.classList.add('pending'); }
+  else { el.textContent = '⏸ در انتظار'; el.classList.add('pending'); }
 }
 
 function updateProgressUI(job) {
   var total = countTotal(job);
   var done = countDone(job);
   var failed = 0;
-  for (var i = 0; i < job.pages.length; i++) {
-    for (var j = 0; j < job.pages[i].chunks.length; j++) {
+  for (var i = 0; i < job.pages.length; i++)
+    for (var j = 0; j < job.pages[i].chunks.length; j++)
       if (job.pages[i].chunks[j].status === 'failed') failed++;
-    }
-  }
   var pct = total ? Math.round(((done + failed) / total) * 100) : 0;
   $('#progressBar').style.width = pct + '%';
   $('#progressText').textContent = 'ترجمه: ' + (done + failed) + '/' + total + ' بخش';
-  $('#chunkStats').textContent = '✅ موفق: ' + done + '   ⚠️ ناموفق: ' + failed +
-    '   ⏳ در انتظار: ' + (total - done - failed);
+  $('#chunkStats').textContent = '✅ موفق: ' + done + '   ⚠️ ناموفق: ' + failed + '   ⏳ در انتظار: ' + (total - done - failed);
 }
 function setProgress(pct, txt) {
   $('#progressBar').style.width = pct + '%';
@@ -1264,7 +1331,7 @@ async function clearCurrentJob() {
   toast('ذخیره حذف شد', 'success');
 }
 
-/* ================= PAGE OBSERVER ================= */
+/* ===== page observer ===== */
 var pageObserver = null;
 function setupPageObserver() {
   if (pageObserver) pageObserver.disconnect();
@@ -1302,7 +1369,7 @@ async function renderPageCanvas(pageNum, canvas) {
   await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
 }
 
-/* ================= OUTPUT ================= */
+/* ===== output ===== */
 async function copyOutput() {
   var job = state.currentJob;
   if (!job) { toast('خروجی خالی', 'error'); return; }
@@ -1317,7 +1384,7 @@ function buildPlainText(job) {
   for (var i = 0; i < job.pages.length; i++) {
     var page = job.pages[i];
     if (!page.chunks.length) continue;
-    if (job.structure === 'page' || job.structure === 'sentence') {
+    if (job.structure === 'page' || job.structure === 'sidebyside' || job.structure === 'sentence') {
       lines.push('════════ صفحهٔ ' + page.pageNum + ' ════════');
       lines.push('');
     }
@@ -1325,7 +1392,7 @@ function buildPlainText(job) {
       var c = page.chunks[j];
       if (job.mode === 'textonly') {
         if (c.status === 'done') { lines.push(restoreGlossary(c.translated, job.glossaryMap)); lines.push(''); }
-      } else if (job.structure === 'sentence') {
+      } else if (job.structure === 'sentence' || job.structure === 'sidebyside') {
         lines.push('▸ ' + restoreOriginal(c.text, job.glossaryMap));
         lines.push('▸ ' + (c.status === 'done' ? restoreGlossary(c.translated, job.glossaryMap) : '[' + c.status + ']'));
         lines.push('');
@@ -1364,47 +1431,31 @@ async function downloadDocx() {
   var job = state.currentJob;
   if (!job) { toast('خروجی خالی', 'error'); return; }
   if (typeof docx === 'undefined') { toast('docx.js لود نشد', 'error'); return; }
-
   toast('در حال ساخت Word...');
   try {
-    var Document = docx.Document;
-    var Packer = docx.Packer;
-    var Paragraph = docx.Paragraph;
-    var TextRun = docx.TextRun;
-    var AlignmentType = docx.AlignmentType;
-
+    var Document = docx.Document, Packer = docx.Packer, Paragraph = docx.Paragraph,
+        TextRun = docx.TextRun, AlignmentType = docx.AlignmentType;
     var children = [];
     children.push(new Paragraph({
       alignment: AlignmentType.CENTER,
       children: [new TextRun({ text: job.fileName, bold: true, size: 32 })]
     }));
     children.push(new Paragraph({ text: '' }));
-
     for (var i = 0; i < job.pages.length; i++) {
-      var page = job.pages[i];
-      for (var j = 0; j < page.chunks.length; j++) {
-        var c = page.chunks[j];
+      for (var j = 0; j < job.pages[i].chunks.length; j++) {
+        var c = job.pages[i].chunks[j];
         if (c.status !== 'done') continue;
-
         if (job.mode !== 'textonly') {
-          var origText = restoreOriginal(c.text, job.glossaryMap);
           children.push(new Paragraph({
-            children: [new TextRun({
-              text: origText, color: '666666', italics: true, size: 22
-            })],
+            children: [new TextRun({ text: restoreOriginal(c.text, job.glossaryMap), color: '666666', italics: true, size: 22 })],
             spacing: { before: 200, after: 80 }
           }));
         }
-
-        var transText = restoreGlossary(c.translated, job.glossaryMap);
         children.push(new Paragraph({
-          children: [new TextRun({
-            text: transText, size: 26, rightToLeft: true
-          })],
+          children: [new TextRun({ text: restoreGlossary(c.translated, job.glossaryMap), size: 26, rightToLeft: true })],
           alignment: AlignmentType.RIGHT,
           spacing: { before: 80, after: 200 }
         }));
-
         if (job.mode !== 'textonly') {
           children.push(new Paragraph({
             children: [new TextRun({ text: '· · ·', color: 'cccccc' })],
@@ -1414,12 +1465,7 @@ async function downloadDocx() {
         }
       }
     }
-
-    var doc = new Document({
-      creator: 'Mousa Translator',
-      sections: [{ properties: {}, children: children }]
-    });
-
+    var doc = new Document({ creator: 'Mousa Translator', sections: [{ properties: {}, children: children }] });
     var blob = await Packer.toBlob(doc);
     var base = (job.fileName || 'translation').replace(/\.(pdf|docx)$/i, '');
     var a = document.createElement('a');
@@ -1428,68 +1474,28 @@ async function downloadDocx() {
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(a.href);
     toast('دانلود DOCX موفق', 'success');
-  } catch (e) {
-    console.error(e);
-    toast('خطا در Word: ' + e.message, 'error');
-  }
-}
-
-async function extractPageStructured(pageNum) {
-  var page = await state.pdf.getPage(pageNum);
-  var content = await page.getTextContent();
-
-  var items = content.items.filter(function(it) {
-    return it.str && it.str.trim() && it.transform;
-  });
-
-  // گروهبندی بر اساس Y (با تلورانس ۴ پیکسل)
-  var rows = [];
-  for (var i = 0; i < items.length; i++) {
-    var y = items[i].transform[5];
-    var found = false;
-    for (var r = 0; r < rows.length; r++) {
-      if (Math.abs(rows[r].y - y) < 4) {
-        rows[r].items.push(items[i]);
-        found = true;
-        break;
-      }
-    }
-    if (!found) rows.push({ y: y, items: [items[i]] });
-  }
-
-  // مرتبسازی ردیفها از بالا به پایین
-  rows.sort(function(a, b) { return b.y - a.y; });
-
-  // ساخت متن از هر ردیف
-  var lines = [];
-  for (var ri = 0; ri < rows.length; ri++) {
-    var rowItems = rows[ri].items.slice();
-    // مرتبسازی بر اساس X (چپ به راست)
-    rowItems.sort(function(a, b) { return a.transform[4] - b.transform[4]; });
-    var lineText = rowItems.map(function(it) { return it.str; }).join(' ').trim();
-    if (lineText) lines.push(lineText);
-  }
-
-  return lines.join('\n');
+  } catch (e) { console.error(e); toast('خطا در Word: ' + e.message, 'error'); }
 }
 
 async function downloadHtml() {
   var job = state.currentJob;
   if (!job) { toast('خروجی خالی', 'error'); return; }
-  if (job.mode !== 'original') { toast('فقط در حالت صفحهٔ اصلی', 'error'); return; }
+  if (job.mode !== 'original' && job.mode !== 'sidebyside') { toast('فقط در حالت‌های عکس‌دار', 'error'); return; }
   toast('در حال ساخت HTML...');
-
   var parts = [];
   parts.push('<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8">');
   parts.push('<title>' + escapeHtml(job.fileName) + '</title>');
-  parts.push('<style>body{font-family:Vazirmatn,sans-serif;max-width:900px;margin:0 auto;padding:20px;background:#f1f5fb}h3{color:#1e40af}.page{background:#fff;border-radius:12px;padding:16px;margin-bottom:20px}.page img{width:100%;border-radius:8px}.trans{margin-top:16px;padding:12px;background:#f0fdf4;border-radius:8px;color:#166534;white-space:pre-wrap}</style>');
+  parts.push('<style>body{font-family:Vazirmatn,sans-serif;max-width:900px;margin:0 auto;padding:20px;background:#f1f5fb}h3{color:#1e40af}.page{background:#fff;border-radius:12px;padding:16px;margin-bottom:20px}.page img{width:100%;border-radius:8px}.trans{margin-top:16px;padding:12px;background:#f0fdf4;border-radius:8px;color:#166534;white-space:pre-wrap}.ss{display:grid;grid-template-columns:1fr 1fr;gap:16px}.ss img{border-radius:8px}@media(max-width:900px){.ss{grid-template-columns:1fr}}</style>');
   parts.push('</head><body>');
   parts.push('<h2 style="text-align:center">' + escapeHtml(job.fileName) + '</h2>');
-
   for (var i = 0; i < job.pages.length; i++) {
     var page = job.pages[i];
     if (!page.chunks.length) continue;
-    parts.push('<div class="page"><h3>صفحهٔ ' + page.pageNum + '</h3>');
+    var transText = '';
+    for (var j = 0; j < page.chunks.length; j++) {
+      if (page.chunks[j].status === 'done') transText += restoreGlossary(page.chunks[j].translated || '', job.glossaryMap) + ' ';
+    }
+    var imgData = '';
     try {
       var p = await state.pdf.getPage(page.pageNum);
       var baseVp = p.getViewport({ scale: 1 });
@@ -1498,18 +1504,20 @@ async function downloadHtml() {
       var canvas = document.createElement('canvas');
       canvas.width = vp.width; canvas.height = vp.height;
       await p.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
-      parts.push('<img src="' + canvas.toDataURL('image/jpeg', 0.85) + '">');
+      imgData = canvas.toDataURL('image/jpeg', 0.85);
     } catch (e) {}
-    var textParts = [];
-    for (var j = 0; j < page.chunks.length; j++) {
-      if (page.chunks[j].status === 'done') {
-        textParts.push(restoreGlossary(page.chunks[j].translated || '', job.glossaryMap));
-      }
+    if (job.mode === 'sidebyside') {
+      parts.push('<div class="page" style="background:transparent;box-shadow:none;padding:0"><div class="ss">');
+      parts.push('<div><h3>صفحهٔ ' + page.pageNum + '</h3><img src="' + imgData + '"></div>');
+      parts.push('<div style="padding:16px;background:#f0fdf4;border-radius:8px;color:#166534;white-space:pre-wrap">' + escapeHtml(transText || '(ترجمه نشده)') + '</div>');
+      parts.push('</div></div>');
+    } else {
+      parts.push('<div class="page"><h3>صفحهٔ ' + page.pageNum + '</h3>');
+      parts.push('<img src="' + imgData + '">');
+      parts.push('<div class="trans">' + escapeHtml(transText || '(ترجمه نشده)') + '</div></div>');
     }
-    parts.push('<div class="trans">' + escapeHtml(textParts.join(' ') || '(ترجمه نشده)') + '</div></div>');
   }
   parts.push('</body></html>');
-
   var base = (job.fileName || 'translation').replace(/\.(pdf|docx)$/i, '');
   var blob = new Blob([parts.join('\n')], { type: 'text/html;charset=utf-8' });
   var a = document.createElement('a');
@@ -1520,21 +1528,15 @@ async function downloadHtml() {
   toast('دانلود HTML موفق', 'success');
 }
 
-/* ================= BOOT ================= */
+/* ===== boot ===== */
 document.addEventListener('DOMContentLoaded', function(){
   console.log('DOM ready');
-
   if (typeof pdfjsLib !== 'undefined') {
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
     console.log('pdf.js OK');
-  } else {
-    console.warn('pdf.js NOT loaded');
   }
   if (typeof mammoth !== 'undefined') console.log('mammoth OK');
-  else console.warn('mammoth NOT loaded');
   if (typeof docx !== 'undefined') console.log('docx OK');
-  else console.warn('docx NOT loaded');
-
   bindLogin();
 });
