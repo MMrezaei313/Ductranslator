@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#2563eb">
 <title>مترجم تخصصی</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
 
@@ -14,7 +14,7 @@
   <div class="login-card">
     <div class="logo">📚</div>
     <h1>مترجم تخصصی</h1>
-    <p class="muted">PDF و Word — دوزبانه</p>
+    <p class="muted">PDF و Word — پنج حالت ترجمه</p>
     <form id="loginForm" autocomplete="off">
       <label>نام کاربری</label>
       <input id="username" type="text" required autocomplete="username">
@@ -59,9 +59,19 @@
     <section class="card hidden" id="runCard">
       <h2>۳. حالت و محدوده</h2>
 
-      <div class="grid-2" id="pageRangeRow">
-        <div><label>از صفحه</label><input id="fromPage" type="number" value="1" min="1"></div>
-        <div><label>تا صفحه</label><input id="toPage" type="number" value="3" min="1"></div>
+      <div id="pageRangeRow">
+        <label>محدودهٔ صفحات</label>
+        <div class="range-presets" id="rangePresets">
+          <button type="button" class="preset-btn" data-preset="5">۵ صفحهٔ اول</button>
+          <button type="button" class="preset-btn" data-preset="20">۲۰ صفحه</button>
+          <button type="button" class="preset-btn" data-preset="50">۵۰ صفحه</button>
+          <button type="button" class="preset-btn" data-preset="all">همه</button>
+        </div>
+        <div class="grid-2">
+          <div><label>از صفحه</label><input id="fromPage" type="number" value="1" min="1"></div>
+          <div><label>تا صفحه</label><input id="toPage" type="number" value="5" min="1"></div>
+        </div>
+        <p id="rangeInfo" class="muted small"></p>
       </div>
 
       <label>حالت ترجمه</label>
@@ -103,7 +113,10 @@
     </section>
 
     <section class="card">
-      <h2>واژه‌نامه</h2>
+      <div class="card-head">
+        <h2>واژه‌نامه</h2>
+        <small class="muted">روی هر کلمه بزنید تا مثال باز شود</small>
+      </div>
       <select id="glossaryViewSelect"></select>
       <div id="glossaryTable" class="glossary-table"></div>
     </section>
@@ -118,7 +131,7 @@
     </div>
     <label>ایمیل MyMemory (۵۰ هزار کاراکتر در روز)</label>
     <input id="mmEmail" type="email" dir="ltr" placeholder="you@example.com">
-    <label>کلید DeepL API (اختیاری — بهترین کیفیت)</label>
+    <label>کلید DeepL API (اختیاری)</label>
     <input id="deeplKey" type="password" dir="ltr" placeholder="...:fx">
     <button id="saveSettings" class="btn btn-primary btn-block">ذخیره</button>
   </div>
@@ -129,6 +142,6 @@
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
-<script src="script.js?v=3"></script>
+<script src="script.js?v=4"></script>
 </body>
 </html>
